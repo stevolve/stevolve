@@ -21,9 +21,11 @@
 #define new DEBUG_NEW
 #endif
 
+bool bThreadPause = false;
 bool gbRefreshStop = true;
 bool gbThreadStop = false;
 extern int giMagnification;
+extern int colorScheme;
 
 HDC ghCurrentDC = NULL;
 HDC ghMemDC = NULL;
@@ -32,6 +34,7 @@ HBITMAP ghBitmap = NULL;
 CDisplayWnd *pDisplayWnd = NULL;
 DWORD dwThreadID;
 HANDLE hThreadExecute = NULL;
+extern HANDLE ghEvent;
 
 // CAboutDlg dialog used for App About
 
@@ -93,6 +96,7 @@ BEGIN_MESSAGE_MAP(CSTEvolveDlg, CDialogEx)
 	ON_BN_CLICKED(IDC_BUTTON3, &CSTEvolveDlg::OnPauseButton)
 	ON_BN_CLICKED(IDC_BUTTON4, &CSTEvolveDlg::OnPlusButton)
 	ON_BN_CLICKED(IDC_BUTTON5, &CSTEvolveDlg::OnMinusButton)
+	ON_COMMAND_RANGE(IDC_RADIO1, IDC_RADIO7, OnRadioChange)
 END_MESSAGE_MAP()
 
 
@@ -131,8 +135,8 @@ BOOL CSTEvolveDlg::OnInitDialog()
 	GetClientRect(r);
 	pDisplayWnd = new CDisplayWnd();
 	pDisplayWnd->Create(NULL, (LPCTSTR)AfxRegisterWndClass(CS_VREDRAW | CS_HREDRAW, NULL, (HBRUSH)::GetStockObject(DKGRAY_BRUSH), NULL),
-		WS_CHILD | WS_VISIBLE | WS_BORDER, CRect(10, 40, r.Width() - 10, r.Height() - 10), this, 123);
-
+		WS_CHILD | WS_VISIBLE | WS_BORDER, CRect(10, 30, r.Width() - 10, r.Height() - 20), this, 123);
+	
 	ghCurrentDC = ::GetDC(pDisplayWnd->GetSafeHwnd());
 	ghMemDC = CreateCompatibleDC(ghCurrentDC);
 	ghBitmap = CreateCompatibleBitmap(ghCurrentDC, giWorldWidth + 1 + 9, giWorldHeight); // '+ 1 + 9' is for the genome legend
@@ -201,7 +205,7 @@ void CSTEvolveDlg::OnSize(UINT nType, int cx, int cy)
 {
 	CDialogEx::OnSize(nType, cx, cy);
 
-	if (pDisplayWnd) pDisplayWnd->MoveWindow(10, 40, cx - 20, cy - 60);
+	if (pDisplayWnd) pDisplayWnd->MoveWindow(10, 30, cx - 20, cy - 60);
 }
 
 
@@ -239,7 +243,13 @@ void CSTEvolveDlg::OnRefreshButton()
 
 void CSTEvolveDlg::OnPauseButton()
 {
-	//gbThreadStop = !gbThreadStop;
+	bThreadPause = !bThreadPause;
+	if (bThreadPause)
+	{
+		::ResetEvent(ghEvent);
+		//UpdateDisplay();
+	}
+	else ::SetEvent(ghEvent);
 }
 
 
@@ -254,4 +264,10 @@ void CSTEvolveDlg::OnPlusButton()
 void CSTEvolveDlg::OnMinusButton()
 {
 	giMagnification = max(1, giMagnification - 1);
+}
+
+
+void CSTEvolveDlg::OnRadioChange(UINT id)
+{
+	colorScheme = id - IDC_RADIO1;
 }

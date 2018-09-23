@@ -39,4 +39,5 @@ public:
 	afx_msg void OnPauseButton();
 	afx_msg void OnPlusButton();
 	afx_msg void OnMinusButton();
+	afx_msg void OnRadioChange(UINT id);
 };

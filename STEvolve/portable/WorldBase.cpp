@@ -38,7 +38,7 @@ uint64_t ui64Clock = 0; // Clock is incremented on each core loop
 
 int colorScheme = 0; // Currently selected color scheme 
 
-					 //int giMutationRate2 = 50; // program-based
+//int giMutationRate2 = 50; // program-based
 int giMutationRate2 = 5; // neural-based
 
 // Base amount of energy to introduce per tick
