@@ -7,10 +7,31 @@
 #include "STEvolveDlg.h"
 #include "afxdialogex.h"
 
+#include <atomic>
+#include <stdint.h>
+
+#include "portable\Settings.h"
+#include "portable\CellBase.h"
+#include "portable\CellNeural.h"
+#include "portable\WorldBase.h"
+
+#include "DisplayWnd.h"
+
 #ifdef _DEBUG
 #define new DEBUG_NEW
 #endif
 
+bool gbRefreshStop = true;
+bool gbThreadStop = false;
+extern int giMagnification;
+
+HDC ghCurrentDC = NULL;
+HDC ghMemDC = NULL;
+HBITMAP ghBitmap = NULL;
+
+CDisplayWnd *pDisplayWnd = NULL;
+DWORD dwThreadID;
+HANDLE hThreadExecute = NULL;
 
 // CAboutDlg dialog used for App About
 
@@ -30,6 +51,7 @@ public:
 // Implementation
 protected:
 	DECLARE_MESSAGE_MAP()
+public:
 };
 
 CAboutDlg::CAboutDlg() : CDialogEx(IDD_ABOUTBOX)
@@ -42,6 +64,7 @@ void CAboutDlg::DoDataExchange(CDataExchange* pDX)
 }
 
 BEGIN_MESSAGE_MAP(CAboutDlg, CDialogEx)
+//	ON_WM_SIZE()
 END_MESSAGE_MAP()
 
 
@@ -64,6 +87,12 @@ BEGIN_MESSAGE_MAP(CSTEvolveDlg, CDialogEx)
 	ON_WM_SYSCOMMAND()
 	ON_WM_PAINT()
 	ON_WM_QUERYDRAGICON()
+	ON_WM_SIZE()
+	ON_BN_CLICKED(IDC_BUTTON1, &CSTEvolveDlg::OnNewButton)
+	ON_BN_CLICKED(IDC_BUTTON2, &CSTEvolveDlg::OnRefreshButton)
+	ON_BN_CLICKED(IDC_BUTTON3, &CSTEvolveDlg::OnPauseButton)
+	ON_BN_CLICKED(IDC_BUTTON4, &CSTEvolveDlg::OnPlusButton)
+	ON_BN_CLICKED(IDC_BUTTON5, &CSTEvolveDlg::OnMinusButton)
 END_MESSAGE_MAP()
 
 
@@ -98,7 +127,21 @@ BOOL CSTEvolveDlg::OnInitDialog()
 	SetIcon(m_hIcon, TRUE);			// Set big icon
 	SetIcon(m_hIcon, FALSE);		// Set small icon
 
-	// TODO: Add extra initialization here
+	CRect r;
+	GetClientRect(r);
+	pDisplayWnd = new CDisplayWnd();
+	pDisplayWnd->Create(NULL, (LPCTSTR)AfxRegisterWndClass(CS_VREDRAW | CS_HREDRAW, NULL, (HBRUSH)::GetStockObject(DKGRAY_BRUSH), NULL),
+		WS_CHILD | WS_VISIBLE | WS_BORDER, CRect(10, 40, r.Width() - 10, r.Height() - 10), this, 123);
+
+	ghCurrentDC = ::GetDC(pDisplayWnd->GetSafeHwnd());
+	ghMemDC = CreateCompatibleDC(ghCurrentDC);
+	ghBitmap = CreateCompatibleBitmap(ghCurrentDC, giWorldWidth + 1 + 9, giWorldHeight); // '+ 1 + 9' is for the genome legend
+	::SelectObject(ghMemDC, ghBitmap);
+	::FillRect(ghMemDC, CRect(giWorldWidth + 1, 0, giWorldWidth + 1 + 9, giWorldHeight), (HBRUSH)::GetStockObject(DKGRAY_BRUSH));
+
+	::SelectObject(ghCurrentDC, ::GetStockObject(WHITE_PEN));
+	::SelectObject(ghCurrentDC, ::GetStockObject(NULL_BRUSH));
+
 
 	return TRUE;  // return TRUE  unless you set the focus to a control
 }
@@ -152,3 +195,63 @@ HCURSOR CSTEvolveDlg::OnQueryDragIcon()
 	return static_cast<HCURSOR>(m_hIcon);
 }
 
+
+
+void CSTEvolveDlg::OnSize(UINT nType, int cx, int cy)
+{
+	CDialogEx::OnSize(nType, cx, cy);
+
+	if (pDisplayWnd) pDisplayWnd->MoveWindow(10, 40, cx - 20, cy - 60);
+}
+
+
+BOOL CSTEvolveDlg::DestroyWindow()
+{
+	if (ghBitmap) ::DeleteObject(ghBitmap);
+	if (ghMemDC) ::DeleteDC(ghMemDC);
+	if (ghCurrentDC) ::ReleaseDC(m_hWnd, ghCurrentDC);
+
+	// hack way to shut down the other thread for now
+	gbThreadStop = true;
+	WaitForSingleObject(hThreadExecute, INFINITE);
+
+	return CDialogEx::DestroyWindow();
+}
+
+
+void CSTEvolveDlg::OnNewButton()
+{
+	GetDlgItem(IDC_BUTTON1)->EnableWindow(false);
+
+	//if (TESTING)
+	//	hThreadExecute = CreateThread(NULL, 0, (LPTHREAD_START_ROUTINE)Tester, NULL, 0, (LPDWORD)&dwThreadID);
+	//else
+	hThreadExecute = CreateThread(NULL, 0, (LPTHREAD_START_ROUTINE)Start, NULL, 0, (LPDWORD)&dwThreadID);
+
+	SetThreadPriority(hThreadExecute, THREAD_PRIORITY_LOWEST);
+}
+
+
+void CSTEvolveDlg::OnRefreshButton()
+{
+	gbRefreshStop = !gbRefreshStop;
+}
+
+void CSTEvolveDlg::OnPauseButton()
+{
+	//gbThreadStop = !gbThreadStop;
+}
+
+
+
+
+void CSTEvolveDlg::OnPlusButton()
+{
+	giMagnification++;
+}
+
+
+void CSTEvolveDlg::OnMinusButton()
+{
+	giMagnification = max(1, giMagnification - 1);
+}

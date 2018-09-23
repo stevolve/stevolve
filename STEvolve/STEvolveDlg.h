@@ -31,4 +31,12 @@ protected:
 	afx_msg void OnPaint();
 	afx_msg HCURSOR OnQueryDragIcon();
 	DECLARE_MESSAGE_MAP()
+public:
+	afx_msg void OnSize(UINT nType, int cx, int cy);
+	virtual BOOL DestroyWindow();
+	afx_msg void OnNewButton();
+	afx_msg void OnRefreshButton();
+	afx_msg void OnPauseButton();
+	afx_msg void OnPlusButton();
+	afx_msg void OnMinusButton();
 };
