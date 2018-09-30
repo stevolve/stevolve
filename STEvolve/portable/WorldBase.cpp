@@ -29,11 +29,11 @@ CRITICAL_SECTION criticalSection;
 // The world is a 2D array of cells 
 CELLTYPE ***water;
 int **land;
-std::atomic<int> cellIDCounter = 0;
 
 cellXY *aCheckExec;
 int iCheckCurrent = 0;
 
+std::atomic<uint64_t> cellIDCounter = 0;
 uint64_t ui64Clock = 0; // Clock is incremented on each core loop 
 
 int colorScheme = 0; // Currently selected color scheme 
@@ -236,6 +236,7 @@ void Init()
 		}
 	}
 
+#ifndef GRAVITY
 	for (int x = 0; x < giWorldWidth; x++)
 		for (int y = 0; y < giWorldHeight; y++)
 		{
@@ -258,6 +259,7 @@ void Init()
 		for (int y = 0; y < giWorldHeight; y++)
 			if (land[x][y] > 0) landcount++;
 	//Trace("land percentage=%d\n", (int)(landcount / (float)(giWorldWidth * giWorldHeight) * 100));
+#endif // ! GRAVITY
 }
 
 /*template<class T> T **World<T>::get(const uintptr_t x, const uintptr_t y)
@@ -333,7 +335,7 @@ int Start()
 		if (!(clock % DUMP_FREQUENCY)) doDump(clock);
 #endif // DUMP_FREQUENCY 
 
-		if (gbThreadStop) break; // breaks the 'for (;;)' loop, frees memory and ends thread
+		if (gbThreadStop) break; // breaks the 'while()' loop, frees memory and ends thread
 		if (gbRefreshStop) ClearPixels();
 
 #ifdef GRAVITY

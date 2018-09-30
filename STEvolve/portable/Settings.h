@@ -14,3 +14,4 @@ extern int iCostMoveFail;
 extern int giCostInfo;
 extern int giMutationAmount;
 
+void ReadSettings();

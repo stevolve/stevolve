@@ -5,6 +5,7 @@
 #include "stdafx.h"
 #include "STEvolve.h"
 #include "STEvolveDlg.h"
+#include "SettingsDlg.h"
 #include "afxdialogex.h"
 
 #include <atomic>
@@ -92,10 +93,13 @@ BEGIN_MESSAGE_MAP(CSTEvolveDlg, CDialogEx)
 	ON_WM_QUERYDRAGICON()
 	ON_WM_SIZE()
 	ON_BN_CLICKED(IDC_BUTTON1, &CSTEvolveDlg::OnNewButton)
-	ON_BN_CLICKED(IDC_BUTTON2, &CSTEvolveDlg::OnRefreshButton)
-	ON_BN_CLICKED(IDC_BUTTON3, &CSTEvolveDlg::OnPauseButton)
+//	ON_BN_CLICKED(IDC_BUTTON2, &CSTEvolveDlg::OnRefreshButton)
+//	ON_BN_CLICKED(IDC_BUTTON3, &CSTEvolveDlg::OnPauseButton)
+	ON_BN_CLICKED(IDC_CHECK1, &CSTEvolveDlg::OnRefreshButton)
+	ON_BN_CLICKED(IDC_CHECK2, &CSTEvolveDlg::OnPauseButton)
 	ON_BN_CLICKED(IDC_BUTTON4, &CSTEvolveDlg::OnPlusButton)
 	ON_BN_CLICKED(IDC_BUTTON5, &CSTEvolveDlg::OnMinusButton)
+	ON_BN_CLICKED(IDC_BUTTON6, &CSTEvolveDlg::OnSettingsButton)
 	ON_COMMAND_RANGE(IDC_RADIO1, IDC_RADIO7, OnRadioChange)
 END_MESSAGE_MAP()
 
@@ -130,6 +134,8 @@ BOOL CSTEvolveDlg::OnInitDialog()
 	//  when the application's main window is not a dialog
 	SetIcon(m_hIcon, TRUE);			// Set big icon
 	SetIcon(m_hIcon, FALSE);		// Set small icon
+
+	ReadSettings();
 
 	CRect r;
 	GetClientRect(r);
@@ -235,7 +241,6 @@ void CSTEvolveDlg::OnNewButton()
 	SetThreadPriority(hThreadExecute, THREAD_PRIORITY_LOWEST);
 }
 
-
 void CSTEvolveDlg::OnRefreshButton()
 {
 	gbRefreshStop = !gbRefreshStop;
@@ -252,22 +257,40 @@ void CSTEvolveDlg::OnPauseButton()
 	else ::SetEvent(ghEvent);
 }
 
-
-
-
 void CSTEvolveDlg::OnPlusButton()
 {
 	giMagnification++;
 }
-
 
 void CSTEvolveDlg::OnMinusButton()
 {
 	giMagnification = max(1, giMagnification - 1);
 }
 
+void CSTEvolveDlg::OnSettingsButton()
+{
+	CSettingsDlg dlg;
+	//dlg.m_iEnergyInflow = giInFlowFreq;
+	dlg.m_iShareSucc = giCostShareSucc;
+	dlg.m_iCostMoveSucc = giCostMoveSucc;
+	dlg.m_iEatAmount = giEatAmount;
+	dlg.m_iDecayRate = giDecayRate;
+	dlg.m_iSpawnSucc = giCostSpawnSucc;
+	//dlg.m_iMutationRate = giMutationRate2;
+	dlg.m_iMutationAmt = giMutationAmount;
+	dlg.DoModal();
+	//giInFlowFreq = dlg.m_iEnergyInflow;
+	giCostShareSucc = dlg.m_iShareSucc;
+	giCostMoveSucc = dlg.m_iCostMoveSucc;
+	giEatAmount = dlg.m_iEatAmount;
+	giDecayRate = dlg.m_iDecayRate;
+	giCostSpawnSucc = dlg.m_iSpawnSucc;
+	//giMutationRate2 = dlg.m_iMutationRate;
+	giMutationAmount = dlg.m_iMutationAmt;
+}
 
 void CSTEvolveDlg::OnRadioChange(UINT id)
 {
 	colorScheme = id - IDC_RADIO1;
 }
+

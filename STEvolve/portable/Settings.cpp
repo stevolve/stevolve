@@ -2,7 +2,9 @@
 
 #include <iostream>
 #include <fstream>
+#include <sstream>
 #include <string>
+#include <algorithm>
 
 int giWorldHeight = 256;// WORLD_SIZE_Y;
 int giWorldWidth = 512;// WORLD_SIZE_X;
@@ -26,6 +28,22 @@ void ReadSettings()
 	while (f)
 	{
 		std::getline(f, s);
-		//f.getline(ss, ';');
+		s.erase(std::remove(s.begin(), s.end(), ' '), s.end());
+		s.erase(std::remove(s.begin(), s.end(), '\t'), s.end());
+		std::istringstream line(s);
+		std::string key;
+		std::string value;
+		std::getline(line, key, ',');
+		if (key[0] == ';') continue;
+		std::transform(key.begin(), key.end(), key.begin(), ::tolower);
+		std::getline(line, value);
+		if (key == "width")
+			giWorldWidth = std::stoi(value);
+		else if (key == "height")
+			giWorldHeight = std::stoi(value);
+		else if (key == "costmovesucc")
+			giCostMoveSucc = std::stoi(value);
+		else if (key == "costsharesucc")
+			giCostShareSucc = std::stoi(value);
 	}
 }
