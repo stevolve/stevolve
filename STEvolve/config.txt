@@ -1,0 +1,10 @@
+;height,		380
+;width,		800
+;height,	200
+;width,		430
+height,		256
+width,		600
+
+threads,	1
+CostMoveSucc, 150
+CostShareSucc, 25
