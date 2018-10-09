@@ -1,7 +1,7 @@
 # stevolve
-Artificial Life Platform
+OEE Artificial Life Platform
 
-This is a platform for artificial life that is intended to be very open-ended and extendable.   
+This is a platform for artificial life that is intended to be open-ended and extendable.   
 - plugin classes for program-based or neuralnet-based cells, or create your own
 - world classes can be defined for toroidal or a gravity based world, or create your own
 

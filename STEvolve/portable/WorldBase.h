@@ -1,11 +1,5 @@
 #pragma once
 
-#define NUMTHREADS 1
-#define CELLTYPE NeuralBasedCell
-//#define CELLTYPE ProgramBasedCell
-#define TESTING false
-//#define GRAVITY
-
 typedef struct _cellXY { int x, y; } cellXY;
 
 //template <class T> class World

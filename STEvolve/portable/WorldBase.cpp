@@ -41,9 +41,6 @@ int colorScheme = 0; // Currently selected color scheme
 //int giMutationRate2 = 50; // program-based
 int giMutationRate2 = 5; // neural-based
 
-// Base amount of energy to introduce per tick
-//#define INFLOW_RATE 4000
-#define INFLOW_RATE 400
 uintptr_t giSunEnergy;
 uintptr_t guSunVert = 0;
 uintptr_t guSunHorz = giWorldHeight / 2;
@@ -319,7 +316,7 @@ int Start()
 				water[x][y]->lineage = water[x][y]->ID; // Lineage is copied in offspring
 				water[x][y]->wMyColor = rand() % 240;
 				water[x][y]->wChildColor = 0;
-				water[x][y]->energy = INFLOW_RATE * 1000;
+				water[x][y]->energy = giEnergyInflow * 1000;
 			}
 
 	// Main loop 
@@ -386,7 +383,7 @@ int Start()
 		//giSunEnergy = (giInFlowFreq * 200000 - min(iTotalEnergy, giInFlowFreq * 200000)) / iCheckCurrent;
 		giSunEnergy = (iCheckCurrent < (giWorldWidth * giWorldHeight / 4)) ? (giWorldWidth * giWorldHeight / 262) : 0;
 		//giSunEnergy = (iCheckCurrent < (giWorldWidth * giWorldHeight / 4)) ? 500 : 0;
-		giSunEnergy = (INFLOW_RATE + iAdd) * 10 + (rand() % 100); // rand() to simulate cloudy days
+		giSunEnergy = (giEnergyInflow + iAdd) * 10 + (rand() % 100); // rand() to simulate cloudy days
 #ifdef GRAVITY
 		giSunEnergy = 1850 + (rand() % 100); // '1850' for gravity simulation
 #endif // GRAVITY
@@ -420,7 +417,7 @@ int Start()
 			pptr->Mutate();
 			pptr->wMyColor = (pptr->wMyColor + 20) % 240;
 			pptr->lineage = pptr->ID;
-			pptr->energy += INFLOW_RATE * 100; // give the new mutation an enormous amount of energy
+			pptr->energy += giEnergyInflow * 100; // give the new mutation an enormous amount of energy
 		}
 
 		for (i = 0; i < NUMTHREADS; i++)

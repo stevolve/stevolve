@@ -9,6 +9,7 @@
 int giWorldHeight = 256;// WORLD_SIZE_Y;
 int giWorldWidth = 512;// WORLD_SIZE_X;
 int giNumThreads = 1;
+int giEnergyInflow = 400; // amount of energy to introduce per tick
 int giCostMoveSucc = 50;
 int giCostShareSucc = 25;
 int giEatAmount = 20000;

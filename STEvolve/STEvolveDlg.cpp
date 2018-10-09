@@ -141,7 +141,7 @@ BOOL CSTEvolveDlg::OnInitDialog()
 	GetClientRect(r);
 	pDisplayWnd = new CDisplayWnd();
 	pDisplayWnd->Create(NULL, (LPCTSTR)AfxRegisterWndClass(CS_VREDRAW | CS_HREDRAW, NULL, (HBRUSH)::GetStockObject(DKGRAY_BRUSH), NULL),
-		WS_CHILD | WS_VISIBLE | WS_BORDER, CRect(10, 30, r.Width() - 10, r.Height() - 20), this, 123);
+		WS_CHILD | WS_VISIBLE | WS_BORDER | WS_HSCROLL | WS_VSCROLL, CRect(10, 30, r.Width() - 10, r.Height() - 20), this, 123);
 	
 	ghCurrentDC = ::GetDC(pDisplayWnd->GetSafeHwnd());
 	ghMemDC = CreateCompatibleDC(ghCurrentDC);
@@ -270,7 +270,7 @@ void CSTEvolveDlg::OnMinusButton()
 void CSTEvolveDlg::OnSettingsButton()
 {
 	CSettingsDlg dlg;
-	//dlg.m_iEnergyInflow = giInFlowFreq;
+	dlg.m_iEnergyInflow = giEnergyInflow;
 	dlg.m_iShareSucc = giCostShareSucc;
 	dlg.m_iCostMoveSucc = giCostMoveSucc;
 	dlg.m_iEatAmount = giEatAmount;
@@ -279,7 +279,7 @@ void CSTEvolveDlg::OnSettingsButton()
 	//dlg.m_iMutationRate = giMutationRate2;
 	dlg.m_iMutationAmt = giMutationAmount;
 	dlg.DoModal();
-	//giInFlowFreq = dlg.m_iEnergyInflow;
+	giEnergyInflow = dlg.m_iEnergyInflow;
 	giCostShareSucc = dlg.m_iShareSucc;
 	giCostMoveSucc = dlg.m_iCostMoveSucc;
 	giEatAmount = dlg.m_iEatAmount;
