@@ -37,6 +37,8 @@ DWORD dwThreadID;
 HANDLE hThreadExecute = NULL;
 extern HANDLE ghEvent;
 
+WORLDTYPE world;
+
 // CAboutDlg dialog used for App About
 
 class CAboutDlg : public CDialogEx
@@ -233,10 +235,8 @@ void CSTEvolveDlg::OnNewButton()
 {
 	GetDlgItem(IDC_BUTTON1)->EnableWindow(false);
 
-	//if (TESTING)
-	//	hThreadExecute = CreateThread(NULL, 0, (LPTHREAD_START_ROUTINE)Tester, NULL, 0, (LPDWORD)&dwThreadID);
-	//else
-	hThreadExecute = CreateThread(NULL, 0, (LPTHREAD_START_ROUTINE)Start, NULL, 0, (LPDWORD)&dwThreadID);
+	//hThreadExecute = CreateThread(NULL, 0, (LPTHREAD_START_ROUTINE)Start, NULL, 0, (LPDWORD)&dwThreadID);
+	hThreadExecute = CreateThread(NULL, 0, (LPTHREAD_START_ROUTINE)[](void *p)->DWORD { return world.Start(); }, NULL, 0, (LPDWORD)&dwThreadID);
 
 	SetThreadPriority(hThreadExecute, THREAD_PRIORITY_LOWEST);
 }

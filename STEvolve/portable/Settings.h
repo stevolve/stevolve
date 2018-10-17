@@ -3,8 +3,10 @@
 #define NUMTHREADS 1
 #define CELLTYPE NeuralBasedCell
 //#define CELLTYPE ProgramBasedCell
-#define TESTING false
 //#define GRAVITY
+//#define WORLDTYPE WorldToroidal
+#define WORLDTYPE World
+//#define WORLDTYPE WorldTest
 
 extern int giWorldHeight;
 extern int giWorldWidth;

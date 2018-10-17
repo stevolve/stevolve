@@ -11,6 +11,8 @@
 #include "WorldBase.h"
 #include "Draw.h"
 
+extern WORLDTYPE world;
+
 #define RGB(r,g,b)          ((unsigned long)(((unsigned char)(r)|((unsigned short)((unsigned char)(g))<<8))|(((unsigned long)(unsigned char)(b))<<16)))
 
 void ProgramBasedCell::init()
@@ -114,10 +116,10 @@ bool ProgramBasedCell::Spawn(int xCur, int yCur)
 	// to copy to a cell with no energy, since anything copied there
 	// would never be executed and then would be replaced with random
 	// junk eventually. See the seeding code in the main loop above. 
-	ProgramBasedCell *tmpptr = (ProgramBasedCell *)getNeighborPtr(xCur, yCur, facing);
+	ProgramBasedCell *tmpptr = (ProgramBasedCell *)world.getNeighborPtr(xCur, yCur, facing);
 	if (!tmpptr->energy && energy >= (giCostSpawnSucc + 2)) // '+ 2' to ensure both have some energy
 	{
-		tmpptr->ID = ++cellIDCounter;
+		tmpptr->ID = ++world.cellIDCounter;
 		tmpptr->bDead = false;
 		tmpptr->parentID = ID;
 		tmpptr->lineage = lineage; // Lineage is copied in offspring

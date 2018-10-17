@@ -20,15 +20,13 @@ extern bool gbThreadStop;
 //extern int giNumThreads;
 //extern int giSlider;
 
+extern WORLDTYPE world;
+
 HANDLE ghEvent;
 HANDLE aEventStart[NUMTHREADS];
 HANDLE aEventDone[NUMTHREADS];
 HANDLE aThread[NUMTHREADS];
 CRITICAL_SECTION criticalSection;
-
-// The world is a 2D array of cells 
-CELLTYPE ***water;
-int **land;
 
 cellXY *aCheckExec;
 int iCheckCurrent = 0;
@@ -54,7 +52,7 @@ int giSunHorzDir = 1;
 // @param dir Direction to get neighbor from
 // @return Pointer to neighboring cell
 //template<class T> Cell *World<T>::getNeighborPtr(const uintptr_t x, const uintptr_t y, const uintptr_t dir)
-Cell *getNeighborPtr(const uintptr_t x, const uintptr_t y, const uintptr_t dir)
+Cell *World::getNeighborPtr(const uintptr_t x, const uintptr_t y, const uintptr_t dir)
 {
 	// Space is toroidal; it wraps at edges 
 	uintptr_t x2, y2;
@@ -102,7 +100,7 @@ Cell *getNeighborPtr(const uintptr_t x, const uintptr_t y, const uintptr_t dir)
 }
 
 //template<class T> cellXY World<T>::getNeighborPos(const uintptr_t x, const uintptr_t y, const uintptr_t dir)
-cellXY getNeighborPos(const uintptr_t x, const uintptr_t y, const uintptr_t dir)
+cellXY World::getNeighborPos(const uintptr_t x, const uintptr_t y, const uintptr_t dir)
 {
 	// Space is toroidal; it wraps at edges 
 	cellXY cell;
@@ -209,7 +207,7 @@ void SetPixel(int x, int y, Cell *c)
 }
 
 //template<class T> void World<T>::Init()
-void Init()
+void World::Init()
 {
 	water = new CELLTYPE **[giWorldWidth];
 	land = new int *[giWorldWidth];
@@ -269,7 +267,7 @@ template<class T> void World<T>::execute()
 
 }*/
 
-int Start()
+int World::Start()
 {
 	uintptr_t i, x, y;
 
@@ -478,7 +476,7 @@ int ThreadFunc(int* pID)
 			LeaveCriticalSection(&criticalSection);
 			xCur = aCheckExec[iCheckCurrent].x;
 			yCur = aCheckExec[iCheckCurrent].y;
-			pCell = water[xCur][yCur];
+			pCell = world.water[xCur][yCur];
 
 			// Core execution loop 
 			pCell->iExternalCycles++;

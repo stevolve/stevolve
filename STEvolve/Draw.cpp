@@ -4,6 +4,8 @@
 
 extern HDC ghMemDC;
 extern HDC ghCurrentDC;
+extern int giVScrollPos;
+extern int giHScrollPos;
 int giMagnification = 2;
 
 void SetPixelHLS(int x, int y, unsigned short hue, unsigned short lum)
@@ -27,7 +29,7 @@ void ClearPixels()
 
 void UpdateDisplay()
 {
-	::StretchBlt(ghCurrentDC, 0, 0, (giWorldWidth + 1 + 9) * giMagnification, giWorldHeight * giMagnification, ghMemDC, 0, 0, giWorldWidth + 1 + 9, giWorldHeight, SRCCOPY);
+	::StretchBlt(ghCurrentDC, 0, 0, (giWorldWidth + 1 + 9) * giMagnification, giWorldHeight * giMagnification, ghMemDC, giHScrollPos, giVScrollPos, giWorldWidth + 1 + 9, giWorldHeight, SRCCOPY);
 }
 
 void Trace(char *szFormat, ...)

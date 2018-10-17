@@ -6,6 +6,9 @@
 #include "DisplayWnd.h"
 
 
+int giVScrollPos = 0;
+int giHScrollPos = 0;
+
 // CDisplayWnd
 
 IMPLEMENT_DYNAMIC(CDisplayWnd, CWnd)
@@ -53,8 +56,9 @@ void CDisplayWnd::OnHScroll(UINT nSBCode, UINT nPos, CScrollBar* pScrollBar)
 		break;
 	}
 
+	giHScrollPos = GetScrollPos(SB_HORZ);
 	ScrollWindow(iDir, 0);
-	SetScrollPos(SB_HORZ, GetScrollPos(SB_HORZ) - iDir);
+	SetScrollPos(SB_HORZ, giHScrollPos - iDir);
 
 	CWnd::OnHScroll(nSBCode, nPos, pScrollBar);
 }
@@ -80,8 +84,9 @@ void CDisplayWnd::OnVScroll(UINT nSBCode, UINT nPos, CScrollBar* pScrollBar)
 		break;
 	}
 
+	giVScrollPos = GetScrollPos(SB_VERT);
 	ScrollWindow(0, iDir);
-	SetScrollPos(SB_VERT, GetScrollPos(SB_VERT) - iDir);
+	SetScrollPos(SB_VERT, giVScrollPos - iDir);
 
 	CWnd::OnVScroll(nSBCode, nPos, pScrollBar);
 }

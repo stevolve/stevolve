@@ -9,6 +9,7 @@
 #include "CellProgram.h"
 #include "WorldBase.h"
 
+extern WORLDTYPE world;
 
 extern int iCostMoveFail;
 
@@ -19,7 +20,7 @@ void Cell::Look(int xCur, int yCur)
 	reg = 0; // nothing was found if it remains 0
 	for (int i = 0; i < 10; i++) // only "look" max 10 cells away
 	{
-		Cell *tmpptr = getNeighborPtr(tempx, tempy, facing);
+		Cell *tmpptr = world.getNeighborPtr(tempx, tempy, facing);
 		if (tmpptr->energy)
 		{
 			reg = i + 1;
@@ -67,18 +68,16 @@ void Cell::Look(int xCur, int yCur)
 
 bool Cell::Move(int xCur, int yCur)
 {
-	Cell *tmpptr = getNeighborPtr(xCur, yCur, facing);
+	Cell *tmpptr = world.getNeighborPtr(xCur, yCur, facing);
 	if (!tmpptr->energy)
 	{
-		//*world.get(xCur, yCur) = tmpptr;
-		*((Cell **)&water[xCur][yCur]) = tmpptr;
-		cellXY cell = getNeighborPos(xCur, yCur, facing);
-		//*world.get(cell.x, cell.y) = this;
-		*((Cell **)&water[cell.x][cell.y]) = this;
+		*((Cell **)&world.water[xCur][yCur]) = tmpptr;
+		cellXY cell = world.getNeighborPos(xCur, yCur, facing);
+		*((Cell **)&world.water[cell.x][cell.y]) = this;
 tmpptr->x = xCur; tmpptr->y = yCur;
 		this->x = cell.x; this->y = cell.y;
 
-		energy -= __min(energy, giCostMoveSucc + land[x][y]);
+		energy -= __min(energy, giCostMoveSucc + world.land[x][y]);
 		return true;
 	}
 	else
@@ -90,7 +89,7 @@ tmpptr->x = xCur; tmpptr->y = yCur;
 
 bool Cell::Share(int xCur, int yCur)
 {
-	Cell *tmpptr = getNeighborPtr(xCur, yCur, facing);
+	Cell *tmpptr = world.getNeighborPtr(xCur, yCur, facing);
 	if (tmpptr->energy)
 	{
 		tmpptr->bDead = true;
