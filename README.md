@@ -3,7 +3,7 @@ OEE Artificial Life Platform
 
 This is a platform for artificial life that is intended to be open-ended and extendable.   
 - plugin classes for program-based or neuralnet-based cells, or create your own
-- world classes can be defined for toroidal or a gravity based world, or create your own
+- world classes can be defined for toroidal, gravity-based or test world, or create your own
 
 Directions:
 - Build the app.

@@ -15,6 +15,7 @@
 #include "portable\CellBase.h"
 #include "portable\CellNeural.h"
 #include "portable\WorldBase.h"
+#include "portable\WorldTest.h"
 
 #include "DisplayWnd.h"
 
@@ -33,11 +34,12 @@ HDC ghMemDC = NULL;
 HBITMAP ghBitmap = NULL;
 
 CDisplayWnd *pDisplayWnd = NULL;
+Cell *gpWatchCell;
 DWORD dwThreadID;
 HANDLE hThreadExecute = NULL;
 extern HANDLE ghEvent;
 
-WORLDTYPE world;
+World *pWorld;
 
 // CAboutDlg dialog used for App About
 
@@ -58,6 +60,7 @@ public:
 protected:
 	DECLARE_MESSAGE_MAP()
 public:
+//	virtual BOOL OnInitDialog();
 };
 
 CAboutDlg::CAboutDlg() : CDialogEx(IDD_ABOUTBOX)
@@ -235,8 +238,13 @@ void CSTEvolveDlg::OnNewButton()
 {
 	GetDlgItem(IDC_BUTTON1)->EnableWindow(false);
 
-	//hThreadExecute = CreateThread(NULL, 0, (LPTHREAD_START_ROUTINE)Start, NULL, 0, (LPDWORD)&dwThreadID);
-	hThreadExecute = CreateThread(NULL, 0, (LPTHREAD_START_ROUTINE)[](void *p)->DWORD { return world.Start(); }, NULL, 0, (LPDWORD)&dwThreadID);
+	CString temp = CString(garrWorldTypes[giWorldTypesIndex]);
+	if (!temp.CompareNoCase(_T("testing")))
+		pWorld = new WorldTest(); 
+	else //if (!temp.CompareNoCase(_T("toroidal")))
+		pWorld = new World(); 
+
+	hThreadExecute = CreateThread(NULL, 0, (LPTHREAD_START_ROUTINE)[](void *p)->DWORD { return pWorld->Start(); }, NULL, 0, (LPDWORD)&dwThreadID);
 
 	SetThreadPriority(hThreadExecute, THREAD_PRIORITY_LOWEST);
 }
@@ -278,6 +286,9 @@ void CSTEvolveDlg::OnSettingsButton()
 	dlg.m_iSpawnSucc = giCostSpawnSucc;
 	//dlg.m_iMutationRate = giMutationRate2;
 	dlg.m_iMutationAmt = giMutationAmount;
+	dlg.m_iWorldTypesIndex = giWorldTypesIndex;
+	dlg.m_iCellTypesIndex = giCellTypesIndex;
+	dlg.m_bRunning = hThreadExecute != NULL;
 	dlg.DoModal();
 	giEnergyInflow = dlg.m_iEnergyInflow;
 	giCostShareSucc = dlg.m_iShareSucc;
@@ -287,10 +298,13 @@ void CSTEvolveDlg::OnSettingsButton()
 	giCostSpawnSucc = dlg.m_iSpawnSucc;
 	//giMutationRate2 = dlg.m_iMutationRate;
 	giMutationAmount = dlg.m_iMutationAmt;
+	giWorldTypesIndex = dlg.m_iWorldTypesIndex;
+	giCellTypesIndex = dlg.m_iCellTypesIndex;
 }
 
 void CSTEvolveDlg::OnRadioChange(UINT id)
 {
 	colorScheme = id - IDC_RADIO1;
 }
+
 

@@ -3,10 +3,14 @@
 #define NUMTHREADS 1
 #define CELLTYPE NeuralBasedCell
 //#define CELLTYPE ProgramBasedCell
-//#define GRAVITY
-//#define WORLDTYPE WorldToroidal
-#define WORLDTYPE World
-//#define WORLDTYPE WorldTest
+
+extern wchar_t *garrWorldTypes[];
+extern int giWorldTypesSize;
+extern int giWorldTypesIndex;
+
+extern wchar_t *garrCellTypes[];
+extern int giCellTypesSize;
+extern int giCellTypesIndex;
 
 extern int giWorldHeight;
 extern int giWorldWidth;

@@ -1,4 +1,5 @@
 #pragma once
+#include "afxwin.h"
 
 
 // CSettingsDlg dialog
@@ -21,6 +22,7 @@ protected:
 
 	DECLARE_MESSAGE_MAP()
 public:
+	BOOL m_bRunning = true;
 	ULONGLONG m_iEnergyInflow;
 	int m_iShareSucc;
 	int m_iCostMoveSucc;
@@ -29,4 +31,7 @@ public:
 	int m_iSpawnSucc;
 	int m_iMutationRate;
 	int m_iMutationAmt;
+	int m_iWorldTypesIndex;
+	int m_iCellTypesIndex;
+	virtual BOOL OnInitDialog();
 };

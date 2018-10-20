@@ -20,7 +20,7 @@ extern bool gbThreadStop;
 //extern int giNumThreads;
 //extern int giSlider;
 
-extern WORLDTYPE world;
+extern World *pWorld;
 
 HANDLE ghEvent;
 HANDLE aEventStart[NUMTHREADS];
@@ -209,16 +209,20 @@ void SetPixel(int x, int y, Cell *c)
 //template<class T> void World<T>::Init()
 void World::Init()
 {
-	water = new CELLTYPE **[giWorldWidth];
+	water = new Cell **[giWorldWidth];
 	land = new int *[giWorldWidth];
 
 	for (int x = 0; x < giWorldWidth; x++)
 	{
-		water[x] = new CELLTYPE *[giWorldHeight];
+		water[x] = new Cell *[giWorldHeight];
 		land[x] = new int[giWorldHeight];
 		for (int y = 0; y < giWorldHeight; y++)
 		{
-			water[x][y] = new CELLTYPE;
+			if (giCellTypesIndex == 0)
+				water[x][y] = new NeuralBasedCell();
+			else // if (giCellTypesIndex == 1)
+				water[x][y] = new ProgramBasedCell();
+			//water[x][y] = new CELLTYPE;
 			water[x][y]->x = x; water[x][y]->y = y;
 			water[x][y]->bDead = true;
 			water[x][y]->iCycles = 0;
@@ -314,7 +318,7 @@ int World::Start()
 				water[x][y]->lineage = water[x][y]->ID; // Lineage is copied in offspring
 				water[x][y]->wMyColor = rand() % 240;
 				water[x][y]->wChildColor = 0;
-				water[x][y]->energy = giEnergyInflow * 1000;
+				water[x][y]->energy = giEnergyInflow * 100;
 			}
 
 	// Main loop 
@@ -476,7 +480,7 @@ int ThreadFunc(int* pID)
 			LeaveCriticalSection(&criticalSection);
 			xCur = aCheckExec[iCheckCurrent].x;
 			yCur = aCheckExec[iCheckCurrent].y;
-			pCell = world.water[xCur][yCur];
+			pCell = pWorld->water[xCur][yCur];
 
 			// Core execution loop 
 			pCell->iExternalCycles++;

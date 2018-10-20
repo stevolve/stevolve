@@ -51,6 +51,9 @@
     <ClInclude Include="SettingsDlg.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="portable\WorldTest.h">
+      <Filter>Source Files</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="STEvolve.cpp">
@@ -84,6 +87,9 @@
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="SettingsDlg.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="portable\WorldTest.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>

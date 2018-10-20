@@ -189,6 +189,7 @@
     <ClInclude Include="portable\CellProgram.h" />
     <ClInclude Include="portable\WorldBase.h" />
     <ClInclude Include="portable\Settings.h" />
+    <ClInclude Include="portable\WorldTest.h" />
     <ClInclude Include="Resource.h" />
     <ClInclude Include="SettingsDlg.h" />
     <ClInclude Include="stdafx.h" />
@@ -206,6 +207,7 @@
       <PrecompiledHeaderFile Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">stdafx.h</PrecompiledHeaderFile>
     </ClCompile>
     <ClCompile Include="portable\Settings.cpp" />
+    <ClCompile Include="portable\WorldTest.cpp" />
     <ClCompile Include="SettingsDlg.cpp" />
     <ClCompile Include="stdafx.cpp">
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">Create</PrecompiledHeader>

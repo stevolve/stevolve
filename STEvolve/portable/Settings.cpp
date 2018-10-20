@@ -21,6 +21,14 @@ int iCostMoveFail = giCostMoveSucc;// *2;
 int giCostInfo = 5;
 int giMutationAmount = 64; // 8;
 
+wchar_t *garrWorldTypes[] = { L"toroidal", L"gravity", L"testing" };
+int giWorldTypesSize = sizeof(garrWorldTypes) / sizeof(garrWorldTypes[0]);
+int giWorldTypesIndex = 0; // toroidal
+
+wchar_t *garrCellTypes[] = { L"neural-net", L"program" };
+int giCellTypesSize = sizeof(garrCellTypes) / sizeof(garrCellTypes[0]);
+int giCellTypesIndex = 0; // neural-net
+
 void ReadSettings()
 {
 	std::ifstream f("config.txt");

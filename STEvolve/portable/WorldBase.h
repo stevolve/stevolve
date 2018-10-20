@@ -7,7 +7,7 @@ class World
 {
 public:
 	// The world is a 2D array of cells 
-	CELLTYPE ***water;
+	Cell ***water;
 	int **land;
 
 	std::atomic<uint64_t> cellIDCounter; // This is used to generate unique cell IDs 
@@ -18,6 +18,6 @@ public:
 //	T **get(const uintptr_t x, const uintptr_t y);
 
 	void Init();
-	int Start();
+	virtual int Start();
 };
 

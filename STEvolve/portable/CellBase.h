@@ -68,4 +68,7 @@ public:
 	void Look(int, int);
 	bool Move(int, int);
 	bool Share(int, int);
+
+	virtual void SpawnTest(int, int) = 0;
+	virtual void ResetTest() = 0;
 };
