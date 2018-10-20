@@ -4,6 +4,10 @@ OEE Artificial Life Platform
 This is a platform for artificial life that is intended to be open-ended and extendable.   
 - plugin classes for program-based or neuralnet-based cells, or create your own
 - world classes can be defined for toroidal, gravity-based or test world, or create your own
+- there is no attempt to define a "plant" or "animal" organism, they are expected to evolve into their own purpose
+- organisms can Move/Look/Spawn/Eat(Share)
+
+![Screenshot](/screenshot1.jpg)
 
 Directions:
 - Build the app.

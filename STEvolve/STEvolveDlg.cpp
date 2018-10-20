@@ -39,7 +39,7 @@ DWORD dwThreadID;
 HANDLE hThreadExecute = NULL;
 extern HANDLE ghEvent;
 
-World *pWorld;
+World *pWorld = NULL;
 
 // CAboutDlg dialog used for App About
 
@@ -229,6 +229,7 @@ BOOL CSTEvolveDlg::DestroyWindow()
 	// hack way to shut down the other thread for now
 	gbThreadStop = true;
 	WaitForSingleObject(hThreadExecute, INFINITE);
+	if (pWorld) delete pWorld;
 
 	return CDialogEx::DestroyWindow();
 }
@@ -240,9 +241,17 @@ void CSTEvolveDlg::OnNewButton()
 
 	CString temp = CString(garrWorldTypes[giWorldTypesIndex]);
 	if (!temp.CompareNoCase(_T("testing")))
-		pWorld = new WorldTest(); 
+	{
+		pWorld = new WorldTest();
+		((CButton *)GetDlgItem(IDC_RADIO4))->SetCheck(true);
+		colorScheme = 3; // default to 'instruction' colors
+	}
 	else //if (!temp.CompareNoCase(_T("toroidal")))
-		pWorld = new World(); 
+	{
+		pWorld = new World();
+		((CButton *)GetDlgItem(IDC_RADIO1))->SetCheck(true);
+		colorScheme = 0; // default to 'energy' colors
+	}
 
 	hThreadExecute = CreateThread(NULL, 0, (LPTHREAD_START_ROUTINE)[](void *p)->DWORD { return pWorld->Start(); }, NULL, 0, (LPDWORD)&dwThreadID);
 

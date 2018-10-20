@@ -1,8 +1,6 @@
 #pragma once
 
 #define NUMTHREADS 1
-#define CELLTYPE NeuralBasedCell
-//#define CELLTYPE ProgramBasedCell
 
 extern wchar_t *garrWorldTypes[];
 extern int giWorldTypesSize;

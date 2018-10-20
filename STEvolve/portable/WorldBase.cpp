@@ -431,6 +431,13 @@ int World::Start()
 		WaitForMultipleObjects(NUMTHREADS, aEventDone, TRUE, INFINITE);
 	}
 
+	return 0;
+}
+
+World::~World()
+{
+	uintptr_t i, x, y;
+
 	for (x = 0; x < giWorldWidth; ++x)
 	{
 		for (y = 0; y < giWorldHeight; ++y)
@@ -450,9 +457,6 @@ int World::Start()
 	}
 	CloseHandle(ghEvent);
 	DeleteCriticalSection(&criticalSection);
-
-	exit(0);
-	return 0;
 }
 
 int ThreadFunc(int* pID)

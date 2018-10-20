@@ -24,6 +24,7 @@ void DrawPond();
 
 extern Cell *gpWatchCell;
 extern bool gbRefreshStop;
+extern bool gbThreadStop;
 extern HANDLE ghEvent;
 Cell *pCell1, *pCell2;
 Cell *pCells[NUMTESTS];
@@ -223,7 +224,8 @@ int WorldTest::Start()
 	ResetPond();
 
 	MainTestLoop(0);
-	return (0);
+
+	return 0;
 }
 
 void WorldTest::TestInit(Cell *pCell)
@@ -264,7 +266,7 @@ int iAllCycles = 0;
 
 pCell1 = pCells[0];
 pCell2 = pCells[1];
-while (true)
+while (!gbThreadStop)
 	{
 /*		for (i = 0; i < NUMTESTS; i++)
 		{
