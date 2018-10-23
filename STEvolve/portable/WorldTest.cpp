@@ -15,12 +15,10 @@
 extern World *pWorld;
 
 #define RGB(r,g,b)          ((unsigned long)(((unsigned char)(r)|((unsigned short)((unsigned char)(g))<<8))|(((unsigned long)(unsigned char)(b))<<16)))
-#define Trace(s) 
 
 #define NUMTESTS 25
 
 void SetPixel(int x, int y, Cell *c);
-void DrawPond();
 
 extern Cell *gpWatchCell;
 extern bool gbRefreshStop;
@@ -36,13 +34,13 @@ int xPos, yPos;
 #define FOODSTART 10
 int foodperc = FOODSTART;
 
-bool ProgramBasedCellTest::Spawn(int xCur, int yCur)
+/*bool ProgramBasedCell::Spawn(int xCur, int yCur)
 {
 	energy -= min(energy, giCostSpawnFail);
 	return true;
-}
+}*/
 
-void ProgramBasedCellTest::SpawnTest(int xCur, int yCur)
+void ProgramBasedCell::SpawnTest(int xCur, int yCur)
 {
 	ProgramBasedCell *tmpptr = (ProgramBasedCell *)pWorld->water[xCur][yCur];
 	tmpptr->ID = ++pWorld->cellIDCounter;
@@ -59,7 +57,7 @@ void ProgramBasedCellTest::SpawnTest(int xCur, int yCur)
 
 	memset(tmpptr->iInstructionCounter, 0, OPCODE_COUNT * sizeof(uint64_t));
 	memset(tmpptr->linecount, 0, GENOME_DEPTH);
-	//memcpy(tmpptr->outputBuf, pCell->outputBuf, POND_DEPTH);
+	//memcpy(tmpptr->outputBuf, pCell->outputBuf, GENOME_DEPTH);
 	tmpptr->reg = 0;
 	tmpptr->ptrPtr = 0;
 	tmpptr->StackPtr = 0;
@@ -67,19 +65,19 @@ void ProgramBasedCellTest::SpawnTest(int xCur, int yCur)
 	tmpptr->facing = facing;
 }
 
-void ProgramBasedCellTest::ResetTest()
+void ProgramBasedCell::ResetTest()
 {
 	instPtr = 0;
 	StackPtr = 0;
 }
 
-bool NeuralBasedCellTest::Spawn(int xCur, int yCur)
+/*bool NeuralBasedCell::Spawn(int xCur, int yCur)
 {
 	energy -= min(energy, giCostSpawnFail);
 	return true;
-}
+}*/
 
-void NeuralBasedCellTest::SpawnTest(int xCur, int yCur)
+void NeuralBasedCell::SpawnTest(int xCur, int yCur)
 {
 	NeuralBasedCell *tmpptr = (NeuralBasedCell *)pWorld->water[xCur][yCur];
 	tmpptr->ID = ++pWorld->cellIDCounter;
@@ -102,7 +100,7 @@ void NeuralBasedCellTest::SpawnTest(int xCur, int yCur)
 	tmpptr->facing = facing;
 }
 
-void NeuralBasedCellTest::ResetTest()
+void NeuralBasedCell::ResetTest()
 {
 //		for (int i = 0; i < NUMNEURON1; i++)
 //			pCell2->weights1[i][0] = 0.0; // start out ignoring any energy
@@ -111,7 +109,7 @@ void NeuralBasedCellTest::ResetTest()
 
 
 
-void WorldTest::ResetPond()
+void WorldTest::ResetWorld()
 {
 	int x, y;
 	for (x = 0; x < giWorldWidth / 2; x++)
@@ -164,7 +162,7 @@ pWorld->water[giWorldWidth / 2 + x][y]->bDead = true;
 
 void WorldTest::CopyAndReset(int winner)
 {
-	ResetPond();
+	ResetWorld();
 	if (winner == 1) // cell 1 wins
 	{
 		pCell1->SpawnTest(xPos * 3, yPos);
@@ -199,7 +197,7 @@ void WorldTest::CopyAndReset(int winner)
 
 void WorldTest::CopyAndReset2(int winner, int loser)
 {
-	ResetPond();
+	ResetWorld();
 	int xFoo = loser * giWorldWidth / NUMTESTS;
 	pCells[winner]->SpawnTest(xFoo, yPos);
 	pCells[loser] = pWorld->water[xFoo][yPos];
@@ -214,14 +212,23 @@ void WorldTest::CopyAndReset2(int winner, int loser)
 
 int WorldTest::Start()
 {
+	// hard-code the height/width because a larger world won't matter for the test
+	giWorldHeight = 256;
+	giWorldWidth = 512;
+
 	Init();
 	giCostSpawnFail = 50;
 	giCostInfo = 100;
 	giEnergyInflow = 3000;
 
+// remove the 'land' (should probably do this another way)
+for (int x = 0; x < giWorldWidth; x++)
+	for (int y = 0; y < giWorldHeight; y++)
+		pWorld->land[x][y] = 0;
+
 	xPos = giWorldWidth / 4;
 	yPos = giWorldHeight / 2;
-	ResetPond();
+	ResetWorld();
 
 	MainTestLoop(0);
 
@@ -276,10 +283,43 @@ while (!gbThreadStop)
 		}*/
 		pCell1->Tick(pCell1->x, pCell1->y);
 		pCell2->Tick(pCell2->x, pCell2->y);
+
+		// here I could either try to subclass the Cell to change Cell::Spawn() to not actually spawn
+		// or have a flag for test-mode in the Cell class to not spawn
+		// or just remove the child after the spawn:
+		// if the instruction was SPAWN, just kill the child (I know, sad) to it doesn't try to eat it
+		if (pCell1->prevInst == SPAWN)
+		{
+			Cell *pTemp = pWorld->getNeighborPtr(pCell1->x, pCell1->y, pCell1->facing);
+			pTemp->bDead = true;
+			pTemp->energy = 0;
+		}
+		if (pCell2->prevInst == SPAWN)
+		{
+			Cell *pTemp = pWorld->getNeighborPtr(pCell2->x, pCell2->y, pCell2->facing);
+			pTemp->bDead = true;
+			pTemp->energy = 0;
+		}
+
 		// these should probably be moved into Cell::Execute()
 		pCell1->iExternalCycles++;
 		pCell2->iExternalCycles++;
 
+		ClearPixels();
+		for (int x = 0; x < giWorldWidth; x++)
+			for (int y = 0; y < giWorldHeight; y++)
+			{
+				if (pWorld->water[x][y]->energy)
+				{
+					SetPixel(x, y, pWorld->water[x][y]);
+					//if (water[x][y]->bDead)
+					//	SetPixelRGB(x, y, RGB(min(100, water[x][y]->energy), min(100, water[x][y]->energy), min(100, water[x][y]->energy)));
+					//else
+					//	SetPixelHLS(x, y, water[x][y]->wMyColor, (min(water[x][y]->energy, 0xFFFF) / 273)); // lineage
+				}
+			}
+		gpWatchCell = iCellBest == 1 ? pCell1 : pCell2;
+		if (gbRefreshStop) UpdateDisplay();
 /*if (iAllCycles++ > 10)
 {
 	int least = MAXINT;
@@ -315,12 +355,12 @@ while (!gbThreadStop)
 }*/
 
 //		if (pCell1->energy && pCell2->energy)
-if (pCell1->energy || pCell2->energy)
+		if (pCell1->energy || pCell2->energy)
 		{
 			if (pCell1->steals > pCell2->steals) // pCell1 steals first
 			{
 				if (iCellBest != 1) 
-					Trace("1 eats\n");
+					Trace("Cell1 eats, generation=%u\n", (unsigned int)pCell1->ID);
 				foodperc++;
 				CopyAndReset(1);
 				iFailScore = 0;
@@ -328,7 +368,7 @@ if (pCell1->energy || pCell2->energy)
 			else if (pCell1->steals < pCell2->steals) // pCell2 steals first
 			{
 				if (iCellBest != 2) 
-					Trace("2 eats\n");
+					Trace("Cell2 eats, generation=%u\n", (unsigned int)pCell2->ID);
 				foodperc++;
 				CopyAndReset(2);
 				iFailScore = 0;
@@ -386,31 +426,16 @@ gbRefreshStop = foo;
 				//foodperc = FOODSTART;
 				//foodperc = max(FOODSTART, foodperc - 1);
 				CopyAndReset(iCellBest);
+
+				// just an experiment to ensure the mutation is significant:
 				if (typeid(pCell1).name() == "ProgramBasedCell")
 				{
-					//pCell1->genome[0] = rand();
-					//pCell2->genome[0] = rand();
+					Cell *pNotBest = (iCellBest == 1) ? pCell2 : pCell1;
+					((ProgramBasedCell *)pNotBest)->genome[0] = rand();
 				}
 			}
 		//}
 
-		ClearPixels();
-		for (int x = 0; x < giWorldWidth; x++)
-			for (int y = 0; y < giWorldHeight; y++)
-			{
-				if (pWorld->water[x][y]->energy)
-				{
-					SetPixel(x, y, pWorld->water[x][y]);
-					//if (water[x][y]->bDead)
-					//	SetPixelRGB(x, y, RGB(min(100, water[x][y]->energy), min(100, water[x][y]->energy), min(100, water[x][y]->energy)));
-					//else
-					//	SetPixelHLS(x, y, water[x][y]->wMyColor, (min(water[x][y]->energy, 0xFFFF) / 273)); // lineage
-				}
-			}
-gpWatchCell = iCellBest == 1 ? pCell1 : pCell2;
-		if (gbRefreshStop) UpdateDisplay();
-		//UpdatePond();
-		//DrawPond();
 		//WaitForSingleObject(ghEvent, INFINITE);
 	}
 

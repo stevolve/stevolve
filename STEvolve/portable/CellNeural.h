@@ -24,14 +24,7 @@ public:
 	virtual bool Spawn(int, int);
 	void Tick(int, int);
 
-	void SpawnTest(int, int) {};
-	void ResetTest() {};
-};
-
-class NeuralBasedCellTest : public NeuralBasedCell
-{
-public:
-	bool Spawn(int xCur, int yCur);
-	void SpawnTest(int xCur, int yCur);
+	void SpawnTest(int, int);
 	void ResetTest();
 };
+

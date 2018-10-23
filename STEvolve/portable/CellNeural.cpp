@@ -169,20 +169,21 @@ bool NeuralBasedCell::Spawn(int xCur, int yCur)
 void NeuralBasedCell::Tick(int xCur, int yCur)
 {
 	// INPUT
-	// LOOK-RESULT
-	// ENERGY
-	// OUTPUT
-	// LOOK
-	// EAT
-	// SPAWN
-	// MOVE
-	// TURN
+	//		LOOK-RESULT
+	//		ENERGY
+	// OUTPUT-CONTINUES
+	//		LOOK
+	//		TURN
+	// OUTPUT-BREAKS
+	//		EAT
+	//		SPAWN
+	//		MOVE
 	while (energy)
 	{
 		int i, j;
 		double a;
 
-		//		input[0] = energy / 10000.0f;
+		//input[0] = energy / 10000.0f;
 		input[0] = __min(energy, 10000) / 10000.0f;
 		//Look(xCur, yCur);
 		//input[1] = (11 - reg) / 10.0f;
@@ -205,13 +206,14 @@ void NeuralBasedCell::Tick(int xCur, int yCur)
 
 		for (i = 0; i < NUMNEURON2; i++)
 		{
-			a = 0;
+/*			a = 0;
 			for (j = 0; j < NUMNEURON1; j++)
 				a += weights2[i][j] * neuron1[j];
 			a = 2.0 / (1.0 + exp(-a * 2)) - 1;
 			//			output[i] = a - 0.5;
 			neuron2[i] = a;
 			//output[i] = synapse1[i] - 0.5;
+*/neuron2[i] = neuron1[i]; // this just copies the neuron, effectively skipping the layer. comment out to allow layer
 		}
 
 		for (i = 0; i < NUMOUTPUTS; i++)
@@ -233,7 +235,7 @@ void NeuralBasedCell::Tick(int xCur, int yCur)
 		if (output[1] < LOOKMIN)
 		{
 			Look(xCur, yCur);
-			//			input[1] = reg;
+			//input[1] = reg;
 			input[1] = (11 - reg) / 10.0f;
 			iInstructionCounter[LOOK]++;
 			prevInst = LOOK;
@@ -276,9 +278,4 @@ void NeuralBasedCell::Tick(int xCur, int yCur)
 			break;
 		}
 	}
-
-	//	if (!energy) Trace("energy:%.7d age:%.5d lineage:0x%.8x generation:%.7d brains:%.5d facing:%.1d looks:%.5d steals:%.7d spawns:%.7d moves:%.7d\n",
-	//		(int)energy, (int)iExternalCycles, (int)lineage, (int)generation, (int)(iCycles / max(1, iExternalCycles)), (int)facing,
-	//		(int)iInstructionCounter[LOOK], (int)steals, (int)iInstructionCounter[SPAWN], (int)iInstructionCounter[MOVE]);
-
 }

@@ -2,8 +2,15 @@
 #include "portable\Settings.h"
 #include "portable\Draw.h"
 
+#include <stdint.h>
+#include "portable\CellBase.h"
+#include "portable\CellNeural.h"
+#include "portable\CellProgram.h"
+
 extern HDC ghMemDC;
 extern HDC ghCurrentDC;
+extern HWND ghStatusbar;
+extern Cell *gpWatchCell;
 extern int giVScrollPos;
 extern int giHScrollPos;
 int giMagnification = 2;
@@ -30,9 +37,25 @@ void ClearPixels()
 void UpdateDisplay()
 {
 	::StretchBlt(ghCurrentDC, 0, 0, (giWorldWidth + 1 + 9) * giMagnification, giWorldHeight * giMagnification, ghMemDC, giHScrollPos, giVScrollPos, giWorldWidth + 1 + 9, giWorldHeight, SRCCOPY);
+	if (gpWatchCell) gpWatchCell->DrawCell(giWorldWidth + 1, 0);
+}
+
+void UpdateStatusbar(CString &szText)
+{
+	SetWindowText(ghStatusbar, szText);
 }
 
 void Trace(char *szFormat, ...)
 {
+	CString temp;
+	va_list args;
+	va_start(args, szFormat);
+#ifdef _DEBUG
+	ATL::CTrace::TraceV(NULL, -1, atlTraceGeneral, 0, szFormat, args);
+	//TRACE(szFormat, args);
+#endif
+	temp.FormatV(CStringW(szFormat), args);
+	va_end(args);
 
+	UpdateStatusbar(temp);
 }

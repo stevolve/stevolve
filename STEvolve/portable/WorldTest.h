@@ -2,7 +2,7 @@
 
 class WorldTest : public World
 {
-	void ResetPond();
+	void ResetWorld();
 	void CopyAndReset(int);
 	void CopyAndReset2(int, int);
 	void TestInit(Cell *);

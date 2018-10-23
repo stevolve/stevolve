@@ -11,8 +11,6 @@
 #include "WorldBase.h"
 #include "Draw.h"
 
-void Trace(char *szFormat, ...);
-
 int ThreadFunc(int *);
 
 extern bool gbRefreshStop;
@@ -187,6 +185,7 @@ void SetPixel(int x, int y, Cell *c)
 				break;
 			default:
 				SetPixelRGB(x, y, RGB(255, 255, 255)); // shouldn't happen
+				Trace("BAD OPCODE: prevInst=%d\n", (int)c->prevInst);
 				break;
 			}
 			break;
@@ -345,7 +344,7 @@ int World::Start()
 					if (water[x][y]->energy)
 						if (!water[x][y + 1]->energy)
 						{
-							CELLTYPE *pTmp = water[x][y];
+							Cell *pTmp = water[x][y];
 							water[x][y] = water[x][y + 1];
 							water[x][y + 1] = pTmp;
 						}

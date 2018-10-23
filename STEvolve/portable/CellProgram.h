@@ -51,14 +51,6 @@ public:
 	virtual bool Spawn(int, int);
 	void Tick(int, int);
 
-	void SpawnTest(int, int) {};
-	void ResetTest() {};
-};
-
-class ProgramBasedCellTest : public ProgramBasedCell
-{
-public:
-	bool Spawn(int xCur, int yCur);
-	void SpawnTest(int xCur, int yCur);
+	void SpawnTest(int, int);
 	void ResetTest();
 };

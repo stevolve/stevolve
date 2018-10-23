@@ -32,9 +32,10 @@ extern int colorScheme;
 HDC ghCurrentDC = NULL;
 HDC ghMemDC = NULL;
 HBITMAP ghBitmap = NULL;
+HWND ghStatusbar = NULL;
 
 CDisplayWnd *pDisplayWnd = NULL;
-Cell *gpWatchCell;
+Cell *gpWatchCell = NULL;
 DWORD dwThreadID;
 HANDLE hThreadExecute = NULL;
 extern HANDLE ghEvent;
@@ -98,8 +99,6 @@ BEGIN_MESSAGE_MAP(CSTEvolveDlg, CDialogEx)
 	ON_WM_QUERYDRAGICON()
 	ON_WM_SIZE()
 	ON_BN_CLICKED(IDC_BUTTON1, &CSTEvolveDlg::OnNewButton)
-//	ON_BN_CLICKED(IDC_BUTTON2, &CSTEvolveDlg::OnRefreshButton)
-//	ON_BN_CLICKED(IDC_BUTTON3, &CSTEvolveDlg::OnPauseButton)
 	ON_BN_CLICKED(IDC_CHECK1, &CSTEvolveDlg::OnRefreshButton)
 	ON_BN_CLICKED(IDC_CHECK2, &CSTEvolveDlg::OnPauseButton)
 	ON_BN_CLICKED(IDC_BUTTON4, &CSTEvolveDlg::OnPlusButton)
@@ -157,6 +156,7 @@ BOOL CSTEvolveDlg::OnInitDialog()
 	::SelectObject(ghCurrentDC, ::GetStockObject(WHITE_PEN));
 	::SelectObject(ghCurrentDC, ::GetStockObject(NULL_BRUSH));
 
+	ghStatusbar = GetDlgItem(IDC_STATIC)->GetSafeHwnd();
 
 	return TRUE;  // return TRUE  unless you set the focus to a control
 }
@@ -217,6 +217,7 @@ void CSTEvolveDlg::OnSize(UINT nType, int cx, int cy)
 	CDialogEx::OnSize(nType, cx, cy);
 
 	if (pDisplayWnd) pDisplayWnd->MoveWindow(10, 30, cx - 20, cy - 60);
+	::MoveWindow(ghStatusbar, 10, cy - 20, cx - 20, 20, false);
 }
 
 
@@ -225,6 +226,7 @@ BOOL CSTEvolveDlg::DestroyWindow()
 	if (ghBitmap) ::DeleteObject(ghBitmap);
 	if (ghMemDC) ::DeleteDC(ghMemDC);
 	if (ghCurrentDC) ::ReleaseDC(m_hWnd, ghCurrentDC);
+	//if (pDisplayWnd) delete pDisplayWnd;
 
 	// hack way to shut down the other thread for now
 	gbThreadStop = true;

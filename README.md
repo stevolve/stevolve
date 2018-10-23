@@ -15,5 +15,13 @@ Directions:
 - Change the environment parameters using the 'settings' button.
 - Observe.
 
+Observing:
+When creating this, I expected to see the following behaviours: plants, grazers, hunters. What I got was:
+plants - just stay still and soak up energy from the sun as it passes over, maybe retaining the energy during dark periods 
+grazers - move in a straight line and eat anything in its path
+hunters - a lot of movement going out and searching for prey
+ambushers - stay still until something approaches them
+cocoon builders - build a cocoon of its children around itself
+
 ToDo:
 The neural network based cells show more promise and I would like to expand on other type of artificial intelligence and deep learning techniques.
