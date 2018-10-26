@@ -44,6 +44,7 @@ public:
 	uint8_t linecount[GENOME_DEPTH]; // number of times each line was executed
 
 	void init();
+	void Seed();
 
 	void Dump(FILE *);
 	void DrawCell(int, int);

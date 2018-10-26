@@ -271,8 +271,11 @@ int WorldTest::MainTestLoop(int* pID)
 
 int iAllCycles = 0;
 
-pCell1 = pCells[0];
-pCell2 = pCells[1];
+	pCell1 = pCells[0];
+	pCell2 = pCells[1];
+pCell1->Seed();
+//pCell2->Seed();
+
 while (!gbThreadStop)
 	{
 /*		for (i = 0; i < NUMTESTS; i++)
@@ -373,6 +376,11 @@ while (!gbThreadStop)
 				CopyAndReset(2);
 				iFailScore = 0;
 			}
+			else if (pCell1->steals || pCell2->steals)
+			{
+				foodperc++;
+				iFailScore = 0;
+			}
 		}
 		/*else if (pCell1->energy > pCell2->energy)
 		{
@@ -428,11 +436,11 @@ gbRefreshStop = foo;
 				CopyAndReset(iCellBest);
 
 				// just an experiment to ensure the mutation is significant:
-				if (typeid(pCell1).name() == "ProgramBasedCell")
+				/*if (typeid(pCell1).name() == "ProgramBasedCell")
 				{
 					Cell *pNotBest = (iCellBest == 1) ? pCell2 : pCell1;
 					((ProgramBasedCell *)pNotBest)->genome[0] = rand();
-				}
+				}*/
 			}
 		//}
 

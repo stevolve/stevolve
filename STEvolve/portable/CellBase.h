@@ -59,6 +59,7 @@ public:
 	uintptr_t facing;
 
 	virtual void init() = 0;
+	virtual void Seed() = 0;
 	virtual void DrawCell(int, int) = 0;
 	virtual void Dump(FILE *d) = 0;
 	virtual void Mutate() = 0;

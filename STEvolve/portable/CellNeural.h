@@ -17,6 +17,7 @@ public:
 
 public:
 	void init();
+	void Seed() {};
 	void Dump(FILE *);
 	void DrawCell(int, int);
 	void Mutate();

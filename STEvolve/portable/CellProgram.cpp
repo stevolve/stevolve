@@ -19,10 +19,32 @@ void ProgramBasedCell::init()
 {
 	for (int i = 0; i < GENOME_DEPTH; ++i)
 	{
-		genome[i] = rand();//getRandomOpCode();
+		genome[i] = rand();
 		outputBuf[i] = genome[i];
 		linecount[i] = 0;
 	}
+}
+
+void ProgramBasedCell::Seed()
+{
+	genome[0] = INFO; // use as a sort of random number
+	genome[1] = LOOK;
+	genome[2] = IF;
+	genome[3] = 6; // forward to PUSH
+	genome[4] = MOVE;
+	genome[5] = JUMP; // back to 0
+	genome[6] = PUSH;
+	genome[7] = POP;
+	genome[8] = DEC;
+	genome[9] = IF;
+	genome[10] = 13; // forward to MOVE
+	genome[11] = SHARE;
+	genome[12] = JUMP; // back to 0
+	genome[13] = MOVE;
+	genome[14] = PUSH;
+	genome[15] = XCHG;
+	genome[16] = 7; 
+	genome[17] = JUMP;  // back to POP
 }
 
 void ProgramBasedCell::Dump(FILE *d)
@@ -97,7 +119,7 @@ void ProgramBasedCell::Mutate()
 	{
 		if (!(rand() % giMutationAmount))
 		{
-			genome[x] = rand();//getRandomOpCode();
+			genome[x] = rand();
 			outputBuf[x] = genome[x];
 		}
 	}
@@ -111,11 +133,7 @@ void ProgramBasedCell::Mutate()
 
 bool ProgramBasedCell::Spawn(int xCur, int yCur)
 {
-	// Copy outputBuf into neighbor if access is permitted and there
-	// is energy there to make something happen. There is no need
-	// to copy to a cell with no energy, since anything copied there
-	// would never be executed and then would be replaced with random
-	// junk eventually. See the seeding code in the main loop above. 
+	// Copy outputBuf into neighbor 
 	ProgramBasedCell *tmpptr = (ProgramBasedCell *)pWorld->getNeighborPtr(xCur, yCur, facing);
 	if (!tmpptr->energy && energy >= (giCostSpawnSucc + 2)) // '+ 2' to ensure both have some energy
 	{
@@ -172,13 +190,14 @@ void ProgramBasedCell::Tick(int xCur, int yCur)
 	while (energy && iExecuteAmount)
 	{
 		// Get the next instruction 
-		//		inst = (pCell->genome[pCell->instPtr]) % OPCODE_COUNT;
-		if (genome[instPtr] < 192)
+		inst = (genome[instPtr]) % OPCODE_COUNT;
+		/*if (genome[instPtr] < 192)
 			inst = genome[instPtr] / 19.2;
 		else if (genome[instPtr] < 247)
 			inst = (genome[instPtr] - 192) / 6.1111 + 0xa; // '6.1111' = (247 - 192) / 9
 		else
-			inst = (genome[instPtr] - 247) / 2 + 0x12;
+			inst = (genome[instPtr] - 247) / 2 + 0x12;*/
+
 		prevInst = inst;
 		iCycles++;
 
@@ -202,10 +221,8 @@ void ProgramBasedCell::Tick(int xCur, int yCur)
 		switch (inst)
 		{
 		case MOVE: // MOVE: 
-		{
 			if (Move(xCur, yCur)) iExecuteAmount = 0;
 			instPtr = (instPtr + 1) % GENOME_DEPTH;
-		}
 		break;
 		case PUSH: // PUSH: reg onto stack
 			if (StackPtr < STACK_DEPTH - 1)
@@ -237,8 +254,8 @@ void ProgramBasedCell::Tick(int xCur, int yCur)
 			instPtr = (instPtr + 1) % GENOME_DEPTH;
 			break;
 		case WRITEG: // WRITEG: Write out from the register to genome 
-					 //			if (!bTesting) // we don't want to overwrite while testing
-					 //				genome[ptrPtr] = reg;// & 0xf;
+			//if (!bTesting) // we don't want to overwrite while testing
+				genome[ptrPtr] = reg;// & 0xf;
 			energy -= __min(energy, 1);
 			instPtr = (instPtr + 1) % GENOME_DEPTH;
 			break;
@@ -252,12 +269,12 @@ void ProgramBasedCell::Tick(int xCur, int yCur)
 			energy -= __min(energy, 1);
 			instPtr = (instPtr + 1) % GENOME_DEPTH;
 			break;
-		case IF: // IF/GOTO:
+		case IF: // IF-GOTO:
 			if (reg)
 			{
 				//if (instPtr < (GENOME_DEPTH - 1)) 
 				//{
-				instPtr = genome[instPtr + 1] % GENOME_DEPTH;
+				instPtr = genome[(instPtr + 1) % GENOME_DEPTH];
 				//instPtr--; // because it will be added to at the end of this switch statement
 				//}
 				//else 
@@ -270,7 +287,7 @@ void ProgramBasedCell::Tick(int xCur, int yCur)
 				//}
 			}
 			else
-				instPtr = (instPtr + 1) % GENOME_DEPTH;
+				instPtr = (instPtr + 2) % GENOME_DEPTH;
 			//{
 			//	if (instPtr < (GENOME_DEPTH - 1)) instPtr++; 
 			//	else instPtr = EXEC_START_WORD; // will be incremented at the end of this switch statement
@@ -283,35 +300,33 @@ void ProgramBasedCell::Tick(int xCur, int yCur)
 			//instPtr--; // because it will be added to at the end of this switch statement
 			//instPtr = (instPtr + 1) % GENOME_DEPTH;
 			break;
-			//		  case DJNZ:
-			//			  if (!reg)
-			//			  {
-			//				  instPtr = Stack[StackPtr];
-			//
-			//			  }
-			//			  energy -= __min(energy) % GENOME_DEPTH;
-			//		  break;
+		//case DJNZ:
+		//	if (!reg)
+		//	{
+		//		instPtr = Stack[StackPtr];
+		//
+		//	}
+		//	energy -= __min(energy) % GENOME_DEPTH;
+		//	break;
 		case LOADP: // Load with current value of register: 
 			ptrPtr = reg % GENOME_DEPTH;
 			energy -= __min(energy, 1);
 			instPtr = (instPtr + 1) % GENOME_DEPTH;
 			break;
 		case TURN: // TURN: Turn in the direction specified by register 
-				   //facing = reg & 3;
+			//facing = reg & 3;
 			reg >>= 1; // SHIFTR: Shift right
 			energy -= __min(energy, 1);
 			instPtr = (instPtr + 1) % GENOME_DEPTH;
 			break;
 		case XCHG: // XCHG: Load the reg with the current instruction pointer
-				   //			tmp = reg;
 			if (instPtr < (GENOME_DEPTH - 1)) instPtr++;
 			else instPtr = 0;
 			reg = genome[instPtr];
-			//			genome[instPtr] = tmp;
 			energy -= __min(energy, 1);
 			instPtr = (instPtr + 1) % GENOME_DEPTH;
 			break;
-		case LOOK: // LOOK: 
+		case LOOK: // LOOK: // 'LOOK' and 'TURN' are now one operation
 			switch (facing)
 			{
 			case D_NORTH: facing = (reg & 1) ? D_NE : D_NW; break;

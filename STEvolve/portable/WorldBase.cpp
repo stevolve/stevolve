@@ -318,6 +318,7 @@ int World::Start()
 				water[x][y]->wMyColor = rand() % 240;
 				water[x][y]->wChildColor = 0;
 				water[x][y]->energy = giEnergyInflow * 100;
+//water[x][y]->Seed();
 			}
 
 	// Main loop 
