@@ -5,10 +5,12 @@
 #include <sstream>
 #include <string>
 #include <algorithm>
+#include <thread>
 
 int giWorldHeight = 256;// WORLD_SIZE_Y;
 int giWorldWidth = 512;// WORLD_SIZE_X;
 int giNumThreads = 1;
+unsigned int guMaxThreads = 1;
 int giEnergyInflow = 400; // amount of energy to introduce per tick
 int giCostMoveSucc = 50;
 int giCostShareSucc = 25;
@@ -31,6 +33,8 @@ int giCellTypesIndex = 0; // neural-net
 
 void ReadSettings()
 {
+	guMaxThreads = std::thread::hardware_concurrency();
+
 	std::ifstream f("config.txt");
 	std::string s;
 	//std::stringstream ss(s);

@@ -3,6 +3,7 @@
 #include <stdint.h>
 #include <time.h>
 #include <Windows.h>
+#include <mutex>
 
 #include "Settings.h"
 #include "CellBase.h"
@@ -15,15 +16,16 @@ int ThreadFunc(int *);
 
 extern bool gbRefreshStop;
 extern bool gbThreadStop;
-//extern int giNumThreads;
+extern int giNumThreads;
+extern int giMaxThreads;
 //extern int giSlider;
 
 extern World *pWorld;
 
 HANDLE ghEvent;
-HANDLE aEventStart[NUMTHREADS];
-HANDLE aEventDone[NUMTHREADS];
-HANDLE aThread[NUMTHREADS];
+HANDLE aEventStart[MAXTHREADS];
+HANDLE aEventDone[MAXTHREADS];
+HANDLE aThread[MAXTHREADS];
 CRITICAL_SECTION criticalSection;
 
 cellXY *aCheckExec;
@@ -42,108 +44,6 @@ uintptr_t guSunVert = 0;
 uintptr_t guSunHorz = giWorldHeight / 2;
 int giSunHorzDir = 1;
 
-
-// Get a neighbor pointer
-// 
-// @param x Starting X position
-// @param y Starting Y position
-// @param dir Direction to get neighbor from
-// @return Pointer to neighboring cell
-//template<class T> Cell *World<T>::getNeighborPtr(const uintptr_t x, const uintptr_t y, const uintptr_t dir)
-Cell *World::getNeighborPtr(const uintptr_t x, const uintptr_t y, const uintptr_t dir)
-{
-	// Space is toroidal; it wraps at edges 
-	uintptr_t x2, y2;
-
-	switch (dir)
-	{
-	case D_NORTH:
-		x2 = x;
-		y2 = (y) ? y - 1 : giWorldHeight - 1;
-		break;
-	case D_NE:
-		x2 = (x < (giWorldWidth - 1)) ? x + 1 : 0;
-		y2 = (y) ? y - 1 : giWorldHeight - 1;
-		break;
-	case D_EAST:
-		x2 = (x < (giWorldWidth - 1)) ? x + 1 : 0;
-		y2 = y;
-		break;
-	case D_SE:
-		x2 = (x < (giWorldWidth - 1)) ? x + 1 : 0;
-		y2 = (y < (giWorldHeight - 1)) ? y + 1 : 0;
-		break;
-	case D_SOUTH:
-		x2 = x;
-		y2 = (y < (giWorldHeight - 1)) ? y + 1 : 0;
-		break;
-	case D_SW:
-		x2 = (x) ? x - 1 : giWorldWidth - 1;
-		y2 = (y < (giWorldHeight - 1)) ? y + 1 : 0;
-		break;
-	case D_WEST:
-		x2 = (x) ? x - 1 : giWorldWidth - 1;
-		y2 = y;
-		break;
-	case D_NW:
-		x2 = (x) ? x - 1 : giWorldWidth - 1;
-		y2 = (y) ? y - 1 : giWorldHeight - 1;
-		break;
-	default: // This should never be reached 
-		x2 = x;
-		y2 = y;
-		break;
-	}
-	return water[x2][y2];
-}
-
-//template<class T> cellXY World<T>::getNeighborPos(const uintptr_t x, const uintptr_t y, const uintptr_t dir)
-cellXY World::getNeighborPos(const uintptr_t x, const uintptr_t y, const uintptr_t dir)
-{
-	// Space is toroidal; it wraps at edges 
-	cellXY cell;
-
-	switch (dir)
-	{
-	case D_NORTH:
-		cell.x = x;
-		cell.y = (y ? y - 1 : giWorldHeight - 1);
-		break;
-	case D_NE:
-		cell.x = (x < (giWorldWidth - 1) ? x + 1 : 0);
-		cell.y = (y ? y - 1 : giWorldHeight - 1);
-		break;
-	case D_EAST:
-		cell.x = (x < (giWorldWidth - 1) ? x + 1 : 0);
-		cell.y = y;
-		break;
-	case D_SE:
-		cell.x = (x < (giWorldWidth - 1) ? x + 1 : 0);
-		cell.y = (y < (giWorldHeight - 1) ? y + 1 : 0);
-		break;
-	case D_SOUTH:
-		cell.x = x;
-		cell.y = (y < (giWorldHeight - 1) ? y + 1 : 0);
-		break;
-	case D_SW:
-		cell.x = (x ? x - 1 : giWorldWidth - 1);
-		cell.y = (y < (giWorldHeight - 1) ? y + 1 : 0);
-		break;
-	case D_WEST:
-		cell.x = (x ? x - 1 : giWorldWidth - 1);
-		cell.y = y;
-		break;
-	case D_NW:
-		cell.x = (x ? x - 1 : giWorldWidth - 1);
-		cell.y = (y ? y - 1 : giWorldHeight - 1);
-		break;
-	default: // this should never be reached
-		cell.x = x;
-		cell.y = y;
-		break;
-	}
-	return cell;
-}
 
 void SetPixel(int x, int y, Cell *c)
 {
@@ -205,7 +105,107 @@ void SetPixel(int x, int y, Cell *c)
 	}
 }
 
-//template<class T> void World<T>::Init()
+// Get a neighbor pointer
+// 
+// @param x Starting X position
+// @param y Starting Y position
+// @param dir Direction to get neighbor from
+// @return Pointer to neighboring cell
+Cell *World::getNeighborPtr(const uint64_t x, const uint64_t y, const uint64_t dir)
+{
+	// Space is toroidal; it wraps at edges 
+	uint64_t x2, y2;
+
+	switch (dir)
+	{
+	case D_NORTH:
+		x2 = x;
+		y2 = (y) ? y - 1 : giWorldHeight - 1;
+		break;
+	case D_NE:
+		x2 = (x < (giWorldWidth - 1)) ? x + 1 : 0;
+		y2 = (y) ? y - 1 : giWorldHeight - 1;
+		break;
+	case D_EAST:
+		x2 = (x < (giWorldWidth - 1)) ? x + 1 : 0;
+		y2 = y;
+		break;
+	case D_SE:
+		x2 = (x < (giWorldWidth - 1)) ? x + 1 : 0;
+		y2 = (y < (giWorldHeight - 1)) ? y + 1 : 0;
+		break;
+	case D_SOUTH:
+		x2 = x;
+		y2 = (y < (giWorldHeight - 1)) ? y + 1 : 0;
+		break;
+	case D_SW:
+		x2 = (x) ? x - 1 : giWorldWidth - 1;
+		y2 = (y < (giWorldHeight - 1)) ? y + 1 : 0;
+		break;
+	case D_WEST:
+		x2 = (x) ? x - 1 : giWorldWidth - 1;
+		y2 = y;
+		break;
+	case D_NW:
+		x2 = (x) ? x - 1 : giWorldWidth - 1;
+		y2 = (y) ? y - 1 : giWorldHeight - 1;
+		break;
+	default: // This should never be reached 
+		x2 = x;
+		y2 = y;
+		break;
+	}
+//	while (water[x2][y2]->af.test_and_set()) ; // spin-lock
+	return water[x2][y2];
+}
+
+cellXY World::getNeighborPos(const uint64_t x, const uint64_t y, const uint64_t dir)
+{
+	// Space is toroidal; it wraps at edges 
+	cellXY cell;
+
+	switch (dir)
+	{
+	case D_NORTH:
+		cell.x = x;
+		cell.y = (y ? y - 1 : giWorldHeight - 1);
+		break;
+	case D_NE:
+		cell.x = (x < (giWorldWidth - 1) ? x + 1 : 0);
+		cell.y = (y ? y - 1 : giWorldHeight - 1);
+		break;
+	case D_EAST:
+		cell.x = (x < (giWorldWidth - 1) ? x + 1 : 0);
+		cell.y = y;
+		break;
+	case D_SE:
+		cell.x = (x < (giWorldWidth - 1) ? x + 1 : 0);
+		cell.y = (y < (giWorldHeight - 1) ? y + 1 : 0);
+		break;
+	case D_SOUTH:
+		cell.x = x;
+		cell.y = (y < (giWorldHeight - 1) ? y + 1 : 0);
+		break;
+	case D_SW:
+		cell.x = (x ? x - 1 : giWorldWidth - 1);
+		cell.y = (y < (giWorldHeight - 1) ? y + 1 : 0);
+		break;
+	case D_WEST:
+		cell.x = (x ? x - 1 : giWorldWidth - 1);
+		cell.y = y;
+		break;
+	case D_NW:
+		cell.x = (x ? x - 1 : giWorldWidth - 1);
+		cell.y = (y ? y - 1 : giWorldHeight - 1);
+		break;
+	default: // this should never be reached
+		cell.x = x;
+		cell.y = y;
+		break;
+	}
+	return cell;
+}
+
 void World::Init()
 {
 	water = new Cell **[giWorldWidth];
@@ -221,7 +221,6 @@ void World::Init()
 				water[x][y] = new NeuralBasedCell();
 			else // if (giCellTypesIndex == 1)
 				water[x][y] = new ProgramBasedCell();
-			//water[x][y] = new CELLTYPE;
 			water[x][y]->x = x; water[x][y]->y = y;
 			water[x][y]->bDead = true;
 			water[x][y]->iCycles = 0;
@@ -260,16 +259,6 @@ void World::Init()
 #endif // ! GRAVITY
 }
 
-/*template<class T> T **World<T>::get(const uintptr_t x, const uintptr_t y)
-{
-	return &water[x][y];
-}
-
-template<class T> void World<T>::execute()
-{
-
-}*/
-
 int World::Start()
 {
 	uintptr_t i, x, y;
@@ -280,8 +269,8 @@ int World::Start()
 	uint64_t iTotalEnergy = 0;
 
 	ghEvent = CreateEvent(NULL, TRUE, TRUE, NULL);
-	static int foo2[NUMTHREADS];
-	for (i = 0; i < NUMTHREADS; i++)
+	static int foo2[MAXTHREADS];
+	for (i = 0; i < MAXTHREADS; i++)
 	{
 		DWORD foo;
 		foo2[i] = i;
@@ -318,7 +307,7 @@ int World::Start()
 				water[x][y]->wMyColor = rand() % 240;
 				water[x][y]->wChildColor = 0;
 				water[x][y]->energy = giEnergyInflow * 100;
-//water[x][y]->Seed();
+				//water[x][y]->Seed();
 			}
 
 	// Main loop 
@@ -327,7 +316,7 @@ int World::Start()
 		// Increment clock and run reports periodically 
 		// Clock is incremented at the start, so it starts at 1
 		ui64Clock++;
-		//    if (!(clock % giReportFreq)) doReport(clock);
+		//if (!(clock % giReportFreq)) doReport(clock);
 
 		// Periodically dump the viable population if defined 
 #ifdef DUMP_FREQUENCY
@@ -422,13 +411,13 @@ int World::Start()
 			pptr->energy += giEnergyInflow * 100; // give the new mutation an enormous amount of energy
 		}
 
-		for (i = 0; i < NUMTHREADS; i++)
+		for (i = 0; i < giNumThreads; i++)
 		{
 			ResetEvent(aEventDone[i]);
 			SetEvent(aEventStart[i]);
 		}
 		//ThreadFunc();
-		WaitForMultipleObjects(NUMTHREADS, aEventDone, TRUE, INFINITE);
+		WaitForMultipleObjects(giNumThreads, aEventDone, TRUE, INFINITE);
 	}
 
 	return 0;
@@ -449,7 +438,7 @@ World::~World()
 	delete[] land;
 	delete[] aCheckExec;
 
-	for (i = 0; i < NUMTHREADS; i++)
+	for (i = 0; i < MAXTHREADS; i++)
 	{
 		CloseHandle(aThread[i]);
 		CloseHandle(aEventStart[i]);

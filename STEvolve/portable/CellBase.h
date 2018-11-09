@@ -24,6 +24,8 @@
 class Cell
 {
 public:
+//	std::atomic_flag af = ATOMIC_FLAG_INIT;
+
 	// Globally unique cell ID 
 	uint64_t ID;
 	// ID of the cell's parent 

@@ -4,6 +4,10 @@
 #include <stdint.h>
 #include <typeinfo> // for 'typeid()'
 
+#define _CRTDBG_MAP_ALLOC
+#include <stdlib.h>
+#include <crtdbg.h>
+
 #include "CellBase.h"
 #include "Settings.h"
 #include "CellNeural.h"
@@ -53,7 +57,7 @@ void ProgramBasedCell::SpawnTest(int xCur, int yCur)
 	tmpptr->steals = 0;
 	tmpptr->generation = generation + 1;
 
-	memcpy(tmpptr->genome, genome, GENOME_DEPTH);
+	memcpy(tmpptr->genome, genome, sizeof(genome));
 
 	memset(tmpptr->iInstructionCounter, 0, OPCODE_COUNT * sizeof(uint64_t));
 	memset(tmpptr->linecount, 0, GENOME_DEPTH);
@@ -90,9 +94,9 @@ void NeuralBasedCell::SpawnTest(int xCur, int yCur)
 	tmpptr->steals = 0;
 	tmpptr->generation = generation + 1;
 
-	memcpy(tmpptr->weights1, weights1, NUMINPUTS * NUMNEURON1 * sizeof(double));
-	memcpy(tmpptr->weights2, weights2, NUMNEURON2 * NUMNEURON1 * sizeof(double));
-	memcpy(tmpptr->weights3, weights3, NUMOUTPUTS * NUMNEURON2 * sizeof(double));
+	memcpy(tmpptr->weights1, weights1, sizeof(weights1));
+	memcpy(tmpptr->weights2, weights2, sizeof(weights2));
+	memcpy(tmpptr->weights3, weights3, sizeof(weights3));
 
 	memset(tmpptr->iInstructionCounter, 0, OPCODE_COUNT * sizeof(uint64_t));
 
@@ -128,8 +132,8 @@ pWorld->water[giWorldWidth / 2 + x][y]->bDead = true;
 				//water[x][y]->lineage = water[x][y]->ID; // Lineage is copied in offspring
 				//water[x][y]->wMyColor = rand() % 240;
 				//water[x][y]->wChildColor = 0;
-				pWorld->water[x][y]->energy = 500;
-pWorld->water[giWorldWidth / 2 + x][y]->energy = 500;
+				pWorld->water[x][y]->energy = 5000;
+pWorld->water[giWorldWidth / 2 + x][y]->energy = 5000;
 			}
 			else //if (water[x][y]->bDead)
 			{
@@ -273,8 +277,7 @@ int iAllCycles = 0;
 
 	pCell1 = pCells[0];
 	pCell2 = pCells[1];
-pCell1->Seed();
-//pCell2->Seed();
+//pCell1->Seed();
 
 while (!gbThreadStop)
 	{

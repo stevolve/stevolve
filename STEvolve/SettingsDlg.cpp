@@ -23,6 +23,7 @@ CSettingsDlg::CSettingsDlg(CWnd* pParent /*=NULL*/)
 	, m_iSpawnSucc(0)
 	, m_iMutationRate(0)
 	, m_iMutationAmt(0)
+	, m_iNumThreads(0)
 {
 
 }
@@ -44,6 +45,7 @@ void CSettingsDlg::DoDataExchange(CDataExchange* pDX)
 	DDX_Text(pDX, IDC_EDIT8, m_iMutationAmt);
 	DDX_CBIndex(pDX, IDC_COMBO1, m_iWorldTypesIndex);
 	DDX_CBIndex(pDX, IDC_COMBO2, m_iCellTypesIndex);
+	DDX_Text(pDX, IDC_EDIT9, m_iNumThreads);
 }
 
 

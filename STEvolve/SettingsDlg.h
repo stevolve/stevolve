@@ -34,4 +34,5 @@ public:
 	int m_iWorldTypesIndex;
 	int m_iCellTypesIndex;
 	virtual BOOL OnInitDialog();
+	int m_iNumThreads;
 };

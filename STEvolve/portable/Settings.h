@@ -1,6 +1,6 @@
 #pragma once
 
-#define NUMTHREADS 1
+#define MAXTHREADS 8
 
 extern wchar_t *garrWorldTypes[];
 extern int giWorldTypesSize;

@@ -115,12 +115,15 @@ void NeuralBasedCell::Turn(int reg)
 
 bool NeuralBasedCell::Spawn(int xCur, int yCur)
 {
+	bool bRet = false;
+//	while (af.test_and_set()) ; // spin-lock
 	// Copy outputBuf into neighbor if access is permitted and there
 	// is energy there to make something happen. There is no need
 	// to copy to a cell with no energy, since anything copied there
 	// would never be executed and then would be replaced with random
-	// junk eventually. See the seeding code in the main loop above. 
+	// junk eventually. 
 	NeuralBasedCell *tmpptr = (NeuralBasedCell *)pWorld->getNeighborPtr(xCur, yCur, facing);
+//	while (tmpptr->af.test_and_set()) ; // spin-lock
 	if (!tmpptr->energy && energy >= (giCostSpawnSucc + 2)) // '+ 2' to ensure both have some energy
 	{
 		tmpptr->ID = ++pWorld->cellIDCounter;
@@ -157,13 +160,17 @@ bool NeuralBasedCell::Spawn(int xCur, int yCur)
 		energy = energy * .5;
 
 		energy -= __min(energy, giCostSpawnSucc);
-		return true;
+		bRet = true;
 	}
 	else
 	{
 		energy -= __min(energy, giCostSpawnFail);
-		return false;
+		bRet = false;
 	}
+
+//	tmpptr->af.clear();
+//	af.clear();
+	return bRet;
 }
 
 void NeuralBasedCell::Tick(int xCur, int yCur)

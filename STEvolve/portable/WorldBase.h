@@ -2,7 +2,6 @@
 
 typedef struct _cellXY { int x, y; } cellXY;
 
-//template <class T> class World
 class World
 {
 public:
@@ -12,10 +11,8 @@ public:
 
 	std::atomic<uint64_t> cellIDCounter; // This is used to generate unique cell IDs 
 
-	//T *getNeighborPtr(const uintptr_t x, const uintptr_t y, const uintptr_t dir);
-	Cell *getNeighborPtr(const uintptr_t x, const uintptr_t y, const uintptr_t dir);
-	cellXY getNeighborPos(const uintptr_t x, const uintptr_t y, const uintptr_t dir);
-//	T **get(const uintptr_t x, const uintptr_t y);
+	Cell *getNeighborPtr(const uint64_t x, const uint64_t y, const uint64_t dir);
+	cellXY getNeighborPos(const uint64_t x, const uint64_t y, const uint64_t dir);
 
 	void Init();
 	virtual int Start();

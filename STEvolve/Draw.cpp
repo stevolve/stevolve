@@ -2,6 +2,7 @@
 #include "portable\Settings.h"
 #include "portable\Draw.h"
 
+#include <atomic>
 #include <stdint.h>
 #include "portable\CellBase.h"
 #include "portable\CellNeural.h"

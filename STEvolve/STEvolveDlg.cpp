@@ -226,7 +226,7 @@ BOOL CSTEvolveDlg::DestroyWindow()
 	if (ghBitmap) ::DeleteObject(ghBitmap);
 	if (ghMemDC) ::DeleteDC(ghMemDC);
 	if (ghCurrentDC) ::ReleaseDC(m_hWnd, ghCurrentDC);
-	//if (pDisplayWnd) delete pDisplayWnd;
+	if (pDisplayWnd) delete pDisplayWnd;
 
 	// hack way to shut down the other thread for now
 	gbThreadStop = true;
@@ -299,6 +299,7 @@ void CSTEvolveDlg::OnSettingsButton()
 	dlg.m_iMutationAmt = giMutationAmount;
 	dlg.m_iWorldTypesIndex = giWorldTypesIndex;
 	dlg.m_iCellTypesIndex = giCellTypesIndex;
+	dlg.m_iNumThreads = giNumThreads;
 	dlg.m_bRunning = hThreadExecute != NULL;
 	dlg.DoModal();
 	giEnergyInflow = dlg.m_iEnergyInflow;
@@ -311,6 +312,7 @@ void CSTEvolveDlg::OnSettingsButton()
 	giMutationAmount = dlg.m_iMutationAmt;
 	giWorldTypesIndex = dlg.m_iWorldTypesIndex;
 	giCellTypesIndex = dlg.m_iCellTypesIndex;
+	giNumThreads = dlg.m_iNumThreads;
 }
 
 void CSTEvolveDlg::OnRadioChange(UINT id)

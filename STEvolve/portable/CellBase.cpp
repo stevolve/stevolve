@@ -21,6 +21,7 @@ void Cell::Look(int xCur, int yCur)
 	for (int i = 0; i < 10; i++) // only "look" max 10 cells away
 	{
 		Cell *tmpptr = pWorld->getNeighborPtr(tempx, tempy, facing);
+//		tmpptr->af.clear();
 		if (tmpptr->energy)
 		{
 			reg = i + 1;
@@ -68,7 +69,13 @@ void Cell::Look(int xCur, int yCur)
 
 bool Cell::Move(int xCur, int yCur)
 {
+	bool bRet = false;
+
+//	while (af.test_and_set()) ; // spin-lock
+
 	Cell *tmpptr = pWorld->getNeighborPtr(xCur, yCur, facing);
+//	while (tmpptr->af.test_and_set()) ;
+	
 	if (!tmpptr->energy)
 	{
 		*((Cell **)&pWorld->water[xCur][yCur]) = tmpptr;
@@ -78,18 +85,27 @@ tmpptr->x = xCur; tmpptr->y = yCur;
 		this->x = cell.x; this->y = cell.y;
 
 		energy -= __min(energy, giCostMoveSucc + pWorld->land[x][y]);
-		return true;
+		bRet = true;
 	}
 	else
 	{
 		energy -= __min(energy, iCostMoveFail);
-		return false;
+		bRet = false;
 	}
+
+//	tmpptr->af.clear();
+//	af.clear();
+	return bRet;
 };
 
 bool Cell::Share(int xCur, int yCur)
 {
+	bool bRet = false;
+
+//	while (af.test_and_set()) ; // spin-lock
+
 	Cell *tmpptr = pWorld->getNeighborPtr(xCur, yCur, facing);
+//	while (tmpptr->af.test_and_set()) ; // spin-lock
 	if (tmpptr->energy)
 	{
 		tmpptr->bDead = true;
@@ -99,11 +115,15 @@ bool Cell::Share(int xCur, int yCur)
 		steals += tmp;
 
 		energy -= __min(energy, giCostShareSucc);
-		return true;
+		bRet = true;
 	}
 	else
 	{
 		energy -= __min(energy, giCostShareSucc);// iCostShareFail);
-		return false;
+		bRet = false;
 	}
+
+//	tmpptr->af.clear();
+//	af.clear();
+	return bRet;
 }
