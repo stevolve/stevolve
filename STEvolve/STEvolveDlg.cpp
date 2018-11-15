@@ -15,6 +15,8 @@
 #include "portable\CellBase.h"
 #include "portable\CellNeural.h"
 #include "portable\WorldBase.h"
+#include "portable\WorldToroidal.h"
+#include "portable\WorldGravity.h"
 #include "portable\WorldTest.h"
 
 #include "DisplayWnd.h"
@@ -248,9 +250,15 @@ void CSTEvolveDlg::OnNewButton()
 		((CButton *)GetDlgItem(IDC_RADIO4))->SetCheck(true);
 		colorScheme = 3; // default to 'instruction' colors
 	}
-	else //if (!temp.CompareNoCase(_T("toroidal")))
+	else if (!temp.CompareNoCase(_T("toroidal")))
 	{
-		pWorld = new World();
+		pWorld = new WorldToroidal();
+		((CButton *)GetDlgItem(IDC_RADIO1))->SetCheck(true);
+		colorScheme = 0; // default to 'energy' colors
+	}
+	else if (!temp.CompareNoCase(_T("gravity")))
+	{
+		pWorld = new WorldGravity();
 		((CButton *)GetDlgItem(IDC_RADIO1))->SetCheck(true);
 		colorScheme = 0; // default to 'energy' colors
 	}

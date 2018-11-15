@@ -7,10 +7,13 @@
 #include "portable\CellBase.h"
 #include "portable\CellNeural.h"
 #include "portable\CellProgram.h"
+#include "portable\WorldBase.h"
 
 extern HDC ghMemDC;
 extern HDC ghCurrentDC;
 extern HWND ghStatusbar;
+extern bool bThreadPause;
+extern World *pWorld;
 extern Cell *gpWatchCell;
 extern int giVScrollPos;
 extern int giHScrollPos;
@@ -39,6 +42,24 @@ void UpdateDisplay()
 {
 	::StretchBlt(ghCurrentDC, 0, 0, (giWorldWidth + 1 + 9) * giMagnification, giWorldHeight * giMagnification, ghMemDC, giHScrollPos, giVScrollPos, giWorldWidth + 1 + 9, giWorldHeight, SRCCOPY);
 	if (gpWatchCell) gpWatchCell->DrawCell(giWorldWidth + 1, 0);
+}
+
+void SelectWatchCell(int x, int y)
+{
+	// not ready yet
+	/*//if (bThreadPause)
+	{
+		if (x >= giWorldWidth || y >= giWorldHeight)
+			return;
+
+		Cell *pCell = pWorld->water[x / giMagnification][y / giMagnification];
+		if (pCell && pCell->energy)
+		{
+			gpWatchCell = pCell;
+			//UpdateStats(pCell);
+			//if (gbThreadPause) UpdateDisplay();
+		}
+	}*/
 }
 
 void UpdateStatusbar(CString &szText)

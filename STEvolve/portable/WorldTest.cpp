@@ -4,10 +4,6 @@
 #include <stdint.h>
 #include <typeinfo> // for 'typeid()'
 
-#define _CRTDBG_MAP_ALLOC
-#include <stdlib.h>
-#include <crtdbg.h>
-
 #include "CellBase.h"
 #include "Settings.h"
 #include "CellNeural.h"
@@ -61,7 +57,7 @@ void ProgramBasedCell::SpawnTest(int xCur, int yCur)
 
 	memset(tmpptr->iInstructionCounter, 0, OPCODE_COUNT * sizeof(uint64_t));
 	memset(tmpptr->linecount, 0, GENOME_DEPTH);
-	//memcpy(tmpptr->outputBuf, pCell->outputBuf, GENOME_DEPTH);
+	memcpy(tmpptr->outputBuf, outputBuf, GENOME_DEPTH);
 	tmpptr->reg = 0;
 	tmpptr->ptrPtr = 0;
 	tmpptr->StackPtr = 0;
@@ -132,8 +128,8 @@ pWorld->water[giWorldWidth / 2 + x][y]->bDead = true;
 				//water[x][y]->lineage = water[x][y]->ID; // Lineage is copied in offspring
 				//water[x][y]->wMyColor = rand() % 240;
 				//water[x][y]->wChildColor = 0;
-				pWorld->water[x][y]->energy = 5000;
-pWorld->water[giWorldWidth / 2 + x][y]->energy = 5000;
+				pWorld->water[x][y]->energy = 4000;
+pWorld->water[giWorldWidth / 2 + x][y]->energy = 4000;
 			}
 			else //if (water[x][y]->bDead)
 			{
@@ -214,6 +210,16 @@ void WorldTest::CopyAndReset2(int winner, int loser)
 	pCells[loser]->x = xFoo; pCells[loser]->y = yPos;
 }
 
+void WorldTest::AdjustEnvironment()
+{
+	// no adjustments needed for the test world
+}
+
+void WorldTest::GiveEnergy(Cell *pCell)
+{
+	// not applicable to the test world
+}
+
 int WorldTest::Start()
 {
 	// hard-code the height/width because a larger world won't matter for the test
@@ -223,12 +229,7 @@ int WorldTest::Start()
 	Init();
 	giCostSpawnFail = 50;
 	giCostInfo = 100;
-	giEnergyInflow = 3000;
-
-// remove the 'land' (should probably do this another way)
-for (int x = 0; x < giWorldWidth; x++)
-	for (int y = 0; y < giWorldHeight; y++)
-		pWorld->land[x][y] = 0;
+	giEnergyInflow = 5000;
 
 	xPos = giWorldWidth / 4;
 	yPos = giWorldHeight / 2;
@@ -277,9 +278,9 @@ int iAllCycles = 0;
 
 	pCell1 = pCells[0];
 	pCell2 = pCells[1];
-//pCell1->Seed();
+	//pCell1->Seed();
 
-while (!gbThreadStop)
+	while (!gbThreadStop)
 	{
 /*		for (i = 0; i < NUMTESTS; i++)
 		{
@@ -311,21 +312,18 @@ while (!gbThreadStop)
 		pCell1->iExternalCycles++;
 		pCell2->iExternalCycles++;
 
-		ClearPixels();
-		for (int x = 0; x < giWorldWidth; x++)
-			for (int y = 0; y < giWorldHeight; y++)
-			{
-				if (pWorld->water[x][y]->energy)
+		if (gbRefreshStop)
+		{
+			ClearPixels();
+			for (int x = 0; x < giWorldWidth; x++)
+				for (int y = 0; y < giWorldHeight; y++)
 				{
-					SetPixel(x, y, pWorld->water[x][y]);
-					//if (water[x][y]->bDead)
-					//	SetPixelRGB(x, y, RGB(min(100, water[x][y]->energy), min(100, water[x][y]->energy), min(100, water[x][y]->energy)));
-					//else
-					//	SetPixelHLS(x, y, water[x][y]->wMyColor, (min(water[x][y]->energy, 0xFFFF) / 273)); // lineage
+					if (pWorld->water[x][y]->energy)
+						SetPixel(x, y, pWorld->water[x][y]);
 				}
-			}
-		gpWatchCell = iCellBest == 1 ? pCell1 : pCell2;
-		if (gbRefreshStop) UpdateDisplay();
+			gpWatchCell = iCellBest == 1 ? pCell1 : pCell2;
+			UpdateDisplay();
+		}
 /*if (iAllCycles++ > 10)
 {
 	int least = MAXINT;
@@ -366,7 +364,7 @@ while (!gbThreadStop)
 			if (pCell1->steals > pCell2->steals) // pCell1 steals first
 			{
 				if (iCellBest != 1) 
-					Trace("Cell1 eats, generation=%u\n", (unsigned int)pCell1->ID);
+					Trace("Cell1 wins, generation=%u, highscore=%d\n", (unsigned int)pCell1->ID, iHighScore);
 				foodperc++;
 				CopyAndReset(1);
 				iFailScore = 0;
@@ -374,7 +372,7 @@ while (!gbThreadStop)
 			else if (pCell1->steals < pCell2->steals) // pCell2 steals first
 			{
 				if (iCellBest != 2) 
-					Trace("Cell2 eats, generation=%u\n", (unsigned int)pCell2->ID);
+					Trace("Cell2 wins, generation=%u, highscore=%d\n", (unsigned int)pCell2->ID, iHighScore);
 				foodperc++;
 				CopyAndReset(2);
 				iFailScore = 0;
@@ -431,19 +429,12 @@ gbRefreshStop = true;
 				if (iFailScore > 10)
 				{
 					foodperc = max(FOODSTART, foodperc - (int)(iFailScore / 10)); // increase food if it keeps failing
-					Trace("increasing food to:%d due to many failures:%d, highscore=%d\n", foodperc, (int)(iFailScore / 10), iHighScore);
+					Trace("increasing food to:%d due to many failures:%d, highscore=%d best=%d\n", foodperc, (int)(iFailScore / 10), iHighScore, iCellBest);
 				}
 gbRefreshStop = foo;
 				//foodperc = FOODSTART;
 				//foodperc = max(FOODSTART, foodperc - 1);
 				CopyAndReset(iCellBest);
-
-				// just an experiment to ensure the mutation is significant:
-				/*if (typeid(pCell1).name() == "ProgramBasedCell")
-				{
-					Cell *pNotBest = (iCellBest == 1) ? pCell2 : pCell1;
-					((ProgramBasedCell *)pNotBest)->genome[0] = rand();
-				}*/
 			}
 		//}
 

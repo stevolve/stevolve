@@ -106,14 +106,18 @@ void ProgramBasedCell::DrawCell(int left, int top)
 	i = instPtr % GENOME_DEPTH;
 	SetPixelRGB(left + i / giWorldHeight, top + i % giWorldHeight, RGB(255, 255, 255));
 
+	// draw the stack
 	for (i = 0; i < StackPtr; i++)
 		SetPixelRGB(left + i / giWorldHeight + 2, top + i, RGB(128, 0, 0));
+
+	// draw the outputBuf (the child code)
+	for (i = 0; i < GENOME_DEPTH; i++)
+		if (outputBuf[i] != genome[i])
+			SetPixelRGB(left + i / giWorldHeight + 4, top + i, RGB(0, 0, 255));
 }
 
 void ProgramBasedCell::Mutate()
 {
-	instPtr = rand() % GENOME_DEPTH;
-
 	int x;
 	for (x = 0; x < GENOME_DEPTH; x++)
 	{
@@ -123,12 +127,21 @@ void ProgramBasedCell::Mutate()
 			outputBuf[x] = genome[x];
 		}
 	}
-	// just mutate the first 8 cells since that is the most often executed code
-	/*	for (x = 0; x < 8; x++)
+	
+	/*// set the instruction pointer to a random place in the genome
+	instPtr = rand() % GENOME_DEPTH;*/
+
+	/*// just mutate the first 8 cells since that is the most often executed code
+	/for (x = 0; x < 8; x++)
 	{
-	genome[x] = rand();
-	outputBuf[x] = genome[x];
+		genome[x] = rand();
+		outputBuf[x] = genome[x];
 	}*/
+
+	// set the first commands to a jump to random place in the genome
+	genome[0] = outputBuf[0] = XCHG;
+	genome[1] = outputBuf[1] = rand() % GENOME_DEPTH;
+	genome[2] = outputBuf[2] = JUMP;
 }
 
 bool ProgramBasedCell::Spawn(int xCur, int yCur)
@@ -212,7 +225,7 @@ void ProgramBasedCell::Tick(int xCur, int yCur)
 
 		// Execute the instruction 
 		// Keep track of execution frequencies for each instruction 
-		//        statCounters.instructionExecutions[inst] += 1.0;
+		//statCounters.instructionExecutions[inst] += 1.0;
 		iInstructionCounter[inst]++;
 		linecount[instPtr]++;
 		if (linecount[instPtr] == 255)
@@ -224,6 +237,7 @@ void ProgramBasedCell::Tick(int xCur, int yCur)
 			if (Move(xCur, yCur)) iExecuteAmount = 0;
 			instPtr = (instPtr + 1) % GENOME_DEPTH;
 		break;
+
 		case PUSH: // PUSH: reg onto stack
 			if (StackPtr < STACK_DEPTH - 1)
 				Stack[StackPtr++] = reg;
@@ -238,6 +252,7 @@ void ProgramBasedCell::Tick(int xCur, int yCur)
 			energy -= __min(energy, 1);
 			instPtr = (instPtr + 1) % GENOME_DEPTH;
 			break;
+
 		case INC: // INC: Increment the register 
 			reg = (reg + 1) & 0xffff;
 			energy -= __min(energy, 1);
@@ -248,6 +263,7 @@ void ProgramBasedCell::Tick(int xCur, int yCur)
 			energy -= __min(energy, 1);
 			instPtr = (instPtr + 1) % GENOME_DEPTH;
 			break;
+
 		case READG: // READG: Read into the register from genome 
 			reg = genome[ptrPtr];// & 0xf;
 			energy -= __min(energy, 1);
@@ -269,6 +285,7 @@ void ProgramBasedCell::Tick(int xCur, int yCur)
 			energy -= __min(energy, 1);
 			instPtr = (instPtr + 1) % GENOME_DEPTH;
 			break;
+
 		case IF: // IF-GOTO:
 			if (reg)
 			{
@@ -294,6 +311,7 @@ void ProgramBasedCell::Tick(int xCur, int yCur)
 			//}
 			energy -= __min(energy, 1);
 			break;
+
 		case JUMP:
 			instPtr = reg % GENOME_DEPTH;
 			energy -= __min(energy, 1);
@@ -313,12 +331,14 @@ void ProgramBasedCell::Tick(int xCur, int yCur)
 			energy -= __min(energy, 1);
 			instPtr = (instPtr + 1) % GENOME_DEPTH;
 			break;
+
 		case TURN: // TURN: Turn in the direction specified by register 
 			//facing = reg & 3;
 			reg >>= 1; // SHIFTR: Shift right
 			energy -= __min(energy, 1);
 			instPtr = (instPtr + 1) % GENOME_DEPTH;
 			break;
+
 		case XCHG: // XCHG: Load the reg with the current instruction pointer
 			if (instPtr < (GENOME_DEPTH - 1)) instPtr++;
 			else instPtr = 0;
@@ -326,6 +346,7 @@ void ProgramBasedCell::Tick(int xCur, int yCur)
 			energy -= __min(energy, 1);
 			instPtr = (instPtr + 1) % GENOME_DEPTH;
 			break;
+
 		case LOOK: // LOOK: // 'LOOK' and 'TURN' are now one operation
 			switch (facing)
 			{
@@ -341,10 +362,12 @@ void ProgramBasedCell::Tick(int xCur, int yCur)
 			Look(xCur, yCur);
 			instPtr = (instPtr + 1) % GENOME_DEPTH;
 			break;
+
 		case SHARE: // SHARE: Equalize energy between self and neighbor if allowed 
 			if (Share(xCur, yCur)) iExecuteAmount = 0;
 			instPtr = (instPtr + 1) % GENOME_DEPTH;
 			break;
+
 		case SPAWN: // SPAWN
 			if (Spawn(xCur, yCur)) iExecuteAmount = 0;
 			instPtr = (instPtr + 1) % GENOME_DEPTH;
@@ -361,19 +384,16 @@ void ProgramBasedCell::Tick(int xCur, int yCur)
 			energy -= __min(energy, 1);
 			instPtr = (instPtr + 1) % GENOME_DEPTH;
 			break;
-
 		case XOR:
 			reg ^= Stack[StackPtr];
 			energy -= __min(energy, 1);
 			instPtr = (instPtr + 1) % GENOME_DEPTH;
 			break;
-
 		case AND:
 			reg &= Stack[StackPtr];
 			energy -= __min(energy, 1);
 			instPtr = (instPtr + 1) % GENOME_DEPTH;
 			break;
-
 		case OR:
 			reg |= Stack[StackPtr];
 			energy -= __min(energy, 1);
@@ -392,10 +412,5 @@ void ProgramBasedCell::Tick(int xCur, int yCur)
 			//Trace("!!!invalid OpCode\n");
 			break;
 		}
-
-		// Advance the shift and word pointers, and loop around
-		// to the beginning at the end of the genome. 
-		//if (++instPtr >= GENOME_DEPTH)
-		//	  instPtr = EXEC_START_WORD;
 	}
 }

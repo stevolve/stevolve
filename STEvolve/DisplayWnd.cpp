@@ -5,6 +5,7 @@
 #include "STEvolve.h"
 #include "DisplayWnd.h"
 
+void SelectWatchCell(int, int);
 
 int giVScrollPos = 0;
 int giHScrollPos = 0;
@@ -27,6 +28,7 @@ BEGIN_MESSAGE_MAP(CDisplayWnd, CWnd)
 	ON_WM_HSCROLL()
 	ON_WM_VSCROLL()
 	ON_WM_SIZE()
+	ON_WM_MOUSEMOVE()
 END_MESSAGE_MAP()
 
 
@@ -98,4 +100,12 @@ void CDisplayWnd::OnSize(UINT nType, int cx, int cy)
 
 	SetScrollRange(SB_HORZ, 0, cx);
 	SetScrollRange(SB_VERT, 0, cy);
+}
+
+
+void CDisplayWnd::OnMouseMove(UINT nFlags, CPoint point)
+{
+	SelectWatchCell(point.x, point.y);
+
+	CWnd::OnMouseMove(nFlags, point);
 }

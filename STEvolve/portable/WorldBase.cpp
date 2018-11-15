@@ -3,7 +3,6 @@
 #include <stdint.h>
 #include <time.h>
 #include <Windows.h>
-#include <mutex>
 
 #include "Settings.h"
 #include "CellBase.h"
@@ -31,18 +30,10 @@ CRITICAL_SECTION criticalSection;
 cellXY *aCheckExec;
 int iCheckCurrent = 0;
 
-std::atomic<uint64_t> cellIDCounter = 0;
-uint64_t ui64Clock = 0; // Clock is incremented on each core loop 
-
 int colorScheme = 0; // Currently selected color scheme 
 
 //int giMutationRate2 = 50; // program-based
 int giMutationRate2 = 5; // neural-based
-
-uintptr_t giSunEnergy;
-uintptr_t guSunVert = 0;
-uintptr_t guSunHorz = giWorldHeight / 2;
-int giSunHorzDir = 1;
 
 
 void SetPixel(int x, int y, Cell *c)
@@ -232,41 +223,16 @@ void World::Init()
 			land[x][y] = 0;
 		}
 	}
-
-#ifndef GRAVITY
-	for (int x = 0; x < giWorldWidth; x++)
-		for (int y = 0; y < giWorldHeight; y++)
-		{
-			if (x > 0 && y > 0 && x < giWorldWidth - 1 && y < giWorldHeight - 1)
-			{
-				if (!(rand() % 4000))
-				{
-					int h = rand() % 100;
-					for (int i = 0; i < h; i++)
-						for (int j = 0; j < h; j++)
-							if (x - h > 0 && y - h > 0)
-								land[x - h + i][y - h + j] = __max(land[x - h + i][y - h + j], h < 70 ? 1000 : 2000);// h * 100);
-				}
-				else land[x][y] = land[x][y] > 0 ? land[x][y] : 0;
-			}
-			//else land[x][y] = 0;
-		}
-	int landcount = 0;
-	for (int x = 0; x < giWorldWidth; x++)
-		for (int y = 0; y < giWorldHeight; y++)
-			if (land[x][y] > 0) landcount++;
-	//Trace("land percentage=%d\n", (int)(landcount / (float)(giWorldWidth * giWorldHeight) * 100));
-#endif // ! GRAVITY
 }
 
 int World::Start()
 {
 	uintptr_t i, x, y;
 
-	int iAdd = 1; // or -1 depending on amount of living cells
-
 	// total energy currently in the system
 	uint64_t iTotalEnergy = 0;
+
+	uSunHorz = giWorldHeight / 2;
 
 	ghEvent = CreateEvent(NULL, TRUE, TRUE, NULL);
 	static int foo2[MAXTHREADS];
@@ -323,22 +289,10 @@ int World::Start()
 		if (!(clock % DUMP_FREQUENCY)) doDump(clock);
 #endif // DUMP_FREQUENCY 
 
-		if (gbThreadStop) break; // breaks the 'while()' loop, frees memory and ends thread
+		if (gbThreadStop) break; // breaks the main 'while()' loop to end the program
 		if (gbRefreshStop) ClearPixels();
 
-#ifdef GRAVITY
-		// simulate gravity
-		if (!(ui64Clock % 15) && y < giWorldHeight - 1)
-			for (x = 0; x < giWorldWidth; x++)
-				for (y = giWorldHeight - 3; y > 0; y--) // should be 'y >= 0'?
-					if (water[x][y]->energy)
-						if (!water[x][y + 1]->energy)
-						{
-							Cell *pTmp = water[x][y];
-							water[x][y] = water[x][y + 1];
-							water[x][y + 1] = pTmp;
-						}
-#endif GRAVITY
+		AdjustEnvironment();
 
 		iTotalEnergy = 0;
 		for (x = 0; x < giWorldWidth; x++)
@@ -363,29 +317,29 @@ int World::Start()
 		WaitForSingleObject(ghEvent, INFINITE);
 
 		// this code adds or subtracts energy based on overgrowth or undergrowth of cells
+		int iAdd = 1; // or -1 depending on amount of living cells
 		// 61440 = 80% of giWorldWidth * giWorldHeight
 		// 15360 = 20 % of giWorldWidth * giWorldHeight
 		if (iCheckCurrent > giWorldWidth * giWorldHeight * .25) iAdd = -200;
-		//if (iCheckCurrent > giWorldWidth * giWorldHeight * .12) iAdd = -200;
-		//if (iCheckCurrent > giWorldWidth * giWorldHeight * .06) iAdd = -200;
 		else iAdd = 0;
 		//giSunEnergy = 80000 / iCheckCurrent;
 		//giSunEnergy = (80000000 - min(iTotalEnergy, 80000000)) / iCheckCurrent;
 		//giSunEnergy = (giInFlowFreq * 200000 - min(iTotalEnergy, giInFlowFreq * 200000)) / iCheckCurrent;
-		giSunEnergy = (iCheckCurrent < (giWorldWidth * giWorldHeight / 4)) ? (giWorldWidth * giWorldHeight / 262) : 0;
+		iSunEnergy = (iCheckCurrent < (giWorldWidth * giWorldHeight / 4)) ? (giWorldWidth * giWorldHeight / 262) : 0;
 		//giSunEnergy = (iCheckCurrent < (giWorldWidth * giWorldHeight / 4)) ? 500 : 0;
-		giSunEnergy = (giEnergyInflow + iAdd) * 10 + (rand() % 100); // rand() to simulate cloudy days
+		iSunEnergy = (giEnergyInflow + iAdd) * 10 + (rand() % 100); // rand() to simulate cloudy days
 #ifdef GRAVITY
 		giSunEnergy = 1850 + (rand() % 100); // '1850' for gravity simulation
 #endif // GRAVITY
-		guSunVert += 8;
-		if (guSunVert >= giWorldWidth)
+
+		uSunVert += 8;
+		if (uSunVert >= giWorldWidth)
 		{
-			guSunVert = guSunVert % giWorldWidth;
-			guSunHorz = (guSunHorz + giSunHorzDir);
-			if (guSunHorz >= (giWorldHeight * 0.75)) giSunHorzDir = -1;
-			else if (guSunHorz <= (giWorldHeight * 0.25)) giSunHorzDir = 1;
-			Trace("SunHorz=%d, %d\n", (int)guSunHorz, (int)giSunHorzDir);
+			uSunVert = uSunVert % giWorldWidth;
+			uSunHorz = (uSunHorz + iSunHorzDir);
+			if (uSunHorz >= (giWorldHeight * 0.75)) iSunHorzDir = -1;
+			else if (uSunHorz <= (giWorldHeight * 0.25)) iSunHorzDir = 1;
+			Trace("SunHorz=%d, %d\n", (int)uSunHorz, (int)iSunHorzDir);
 		}
 
 		// randomize the order of execution of living cells
@@ -400,11 +354,10 @@ int World::Start()
 			aCheckExec[y] = tmp;
 		}
 
-		// mutate the current instruction pointer to a random cell
-		Cell *pptr;
+		// mutate the first Cell (aCheckExec[0]) 
 		if (!(rand() % giMutationRate2))
 		{
-			pptr = water[aCheckExec[0].x][aCheckExec[0].y];
+			Cell *pptr = water[aCheckExec[0].x][aCheckExec[0].y];
 			pptr->Mutate();
 			pptr->wMyColor = (pptr->wMyColor + 20) % 240;
 			pptr->lineage = pptr->ID;
@@ -469,30 +422,16 @@ int ThreadFunc(int* pID)
 			}
 			iCheckCurrent--;
 			// Keep track of how many cells have been executed 
-			//    statCounters.cellExecutions += 1.0;
+			//statCounters.cellExecutions += 1.0;
 			LeaveCriticalSection(&criticalSection);
 			xCur = aCheckExec[iCheckCurrent].x;
 			yCur = aCheckExec[iCheckCurrent].y;
 			pCell = pWorld->water[xCur][yCur];
 
-			// Core execution loop 
 			pCell->iExternalCycles++;
 //			int iExecuteAmount = 1;//4 * ((pptr->energy / 100) + 1);//4;//rand() % GENOME_DEPTH;
 
-			// simulating the movement of the sun and the seasons of the year
-			int v, h; // 'v' = vertical, 'h' = horizontal
-			if (pCell->x < guSunVert) v = min(guSunVert - pCell->x, pCell->x + giWorldWidth - guSunVert);
-			else v = min(pCell->x - guSunVert, guSunVert + giWorldWidth - pCell->x);
-			//v = (v / 4) * 4 + 1;
-			v = (v / 32) * 2 + 1;
-
-#ifdef GRAVITY
-			h = pCell->y / 2; // top-down energy from the sun
-#else // GRAVITY
-			h = abs((int)guSunHorz - pCell->y) / 64; // sun is above the entire grid
-#endif // GRAVITY
-
-			if (!pCell->bDead) pCell->energy += giSunEnergy / (v + h) - min(giSunEnergy / (v + h), pCell->iExternalCycles / 100);
+			pWorld->GiveEnergy(pCell);
 
 			if (!pCell->bDead)
 				pCell->Tick(xCur, yCur);
