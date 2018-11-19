@@ -107,13 +107,18 @@ void ProgramBasedCell::DrawCell(int left, int top)
 	SetPixelRGB(left + i / giWorldHeight, top + i % giWorldHeight, RGB(255, 255, 255));
 
 	// draw the stack
-	for (i = 0; i < StackPtr; i++)
-		SetPixelRGB(left + i / giWorldHeight + 2, top + i, RGB(128, 0, 0));
+	for (i = 0; i < STACK_DEPTH; i++)
+		if (i < StackPtr)
+			SetPixelRGB(left + i / giWorldHeight + 2, top + i, RGB(Stack[i] / 2, 0, 0));
+		else
+			SetPixelRGB(left + i / giWorldHeight + 2, top + i, RGB(128, 128, 128));
 
 	// draw the outputBuf (the child code)
 	for (i = 0; i < GENOME_DEPTH; i++)
-		if (outputBuf[i] != genome[i])
-			SetPixelRGB(left + i / giWorldHeight + 4, top + i, RGB(0, 0, 255));
+		if (outputBuf[i] == genome[i])
+			SetPixelHLS(left + i / giWorldHeight + 4, top + i, GetColor(genome[i]), 50);
+		else
+			SetPixelHLS(left + i / giWorldHeight + 4, top + i, GetColor(genome[i]), 99);
 }
 
 void ProgramBasedCell::Mutate()
@@ -154,8 +159,8 @@ bool ProgramBasedCell::Spawn(int xCur, int yCur)
 		tmpptr->bDead = false;
 		tmpptr->parentID = ID;
 		tmpptr->lineage = lineage; // Lineage is copied in offspring
-								   //tmpptr->wMyColor = (wMyColor + wChildColor++) % 240;
-								   //tmpptr->wMyColor = (wMyColor + 1) % 240;
+		//tmpptr->wMyColor = (wMyColor + wChildColor++) % 240;
+		//tmpptr->wMyColor = (wMyColor + 1) % 240;
 		tmpptr->wMyColor = wMyColor;
 		//tmpptr->wChildColor = 0;
 		tmpptr->iCycles = 0;

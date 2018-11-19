@@ -41,15 +41,71 @@ void ClearPixels()
 void UpdateDisplay()
 {
 	::StretchBlt(ghCurrentDC, 0, 0, (giWorldWidth + 1 + 9) * giMagnification, giWorldHeight * giMagnification, ghMemDC, giHScrollPos, giVScrollPos, giWorldWidth + 1 + 9, giWorldHeight, SRCCOPY);
-	if (gpWatchCell) gpWatchCell->DrawCell(giWorldWidth + 1, 0);
+	if (gpWatchCell)
+	{
+		int i = giMagnification;
+		Cell *p = gpWatchCell;
+		gpWatchCell->DrawCell(giWorldWidth + 1, 0);
+		switch (gpWatchCell->facing)
+		{
+		case 0:
+			Arc(ghCurrentDC, p->x * i - i, p->y * i - i, p->x * i + 3 + i, p->y * i + 3 + i,
+				p->x * i - i, p->y * i - i, p->x * i + 3 + i, p->y * i - i);
+			break;
+
+		case 1:
+			Arc(ghCurrentDC, p->x * i - i, p->y * i - i, p->x * i + 3 + i, p->y * i + 3 + i,
+				p->x * i, p->y * i - i, p->x * i + 3 + i, p->y * i);
+			break;
+
+		case 2:
+			Arc(ghCurrentDC, p->x * i - i, p->y * i - i, p->x * i + 3 + i, p->y * i + 3 + i,
+				p->x * 3 + 3 + i, p->y * 3 - i, p->x * 3 + 3 + i, p->y * 3 + 3 + i);
+			break;
+
+		case 3:
+			Arc(ghCurrentDC, p->x * i - i, p->y * i - i, p->x * i + 3 + i, p->y * i + 3 + i,
+				p->x * 3 + 3 + i, p->y * 3, p->x * 3 + 3, p->y * 3 + 3 + i);
+			break;
+
+		case 4:
+			Arc(ghCurrentDC, p->x * i - i, p->y * i - i, p->x * i + 3 + i, p->y * i + 3 + i,
+				p->x * 3 + 3 + i, p->y * 3 + 3 + i, p->x * 3 - i, p->y * 3 + 3 + i);
+			break;
+
+		case 5:
+			Arc(ghCurrentDC, p->x * i - i, p->y * i - i, p->x * i + 3 + i, p->y * i + 3 + i,
+				p->x * 3 + i, p->y * 3 + 3 + i, p->x * 3 - i, p->y * 3 + i);
+			break;
+
+		case 6:
+			Arc(ghCurrentDC, p->x * i - i, p->y * i - i, p->x * i + 3 + i, p->y * i + 3 + i,
+				p->x * 3 - i, p->y * 3 + 3 + i, p->x * 3 - i, p->y * 3 - i);
+			break;
+
+		case 7:
+			Arc(ghCurrentDC, p->x * i - i, p->y * i - i, p->x * i + 3 + i, p->y * i + 3 + i,
+				p->x * 3 - i, p->y * 3 + i, p->x * 3, p->y * 3 - i);
+			break;
+		}
+	}
 }
 
+/*				p->x * i - i,		p->y * i - i,		p->x * i + 3 + i,	p->y * i - i
+				p->x * i,			p->y * i - i,		p->x * i + 3 + i,	p->y * i
+				p->x * 3 + 3 + i,	p->y * 3 - i,		p->x * 3 + 3 + i,	p->y * 3 + 3 + i
+				p->x * 3 + 3 + i,	p->y * 3,			p->x * 3 + 3,		p->y * 3 + 3 + i
+				p->x * 3 + 3 + i,	p->y * 3 + 3 + i,	p->x * 3 - i,		p->y * 3 + 3 + i
+				p->x * 3 + i,		p->y * 3 + 3 + i,	p->x * 3 - i,		p->y * 3 + i
+				p->x * 3 - i,		p->y * 3 + 3 + i,	p->x * 3 - i,		p->y * 3 - i
+				p->x * 3 - i,		p->y * 3 + i,		p->x * 3,			p->y * 3 - i
+*/
 void SelectWatchCell(int x, int y)
 {
 	// not ready yet
-	/*//if (bThreadPause)
+	if (bThreadPause)
 	{
-		if (x >= giWorldWidth || y >= giWorldHeight)
+		if (x >= giWorldWidth * giMagnification || y >= giWorldHeight * giMagnification)
 			return;
 
 		Cell *pCell = pWorld->water[x / giMagnification][y / giMagnification];
@@ -57,9 +113,9 @@ void SelectWatchCell(int x, int y)
 		{
 			gpWatchCell = pCell;
 			//UpdateStats(pCell);
-			//if (gbThreadPause) UpdateDisplay();
+			if (bThreadPause) UpdateDisplay();
 		}
-	}*/
+	}
 }
 
 void UpdateStatusbar(CString &szText)

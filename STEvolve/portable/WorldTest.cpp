@@ -23,7 +23,6 @@ void SetPixel(int x, int y, Cell *c);
 extern Cell *gpWatchCell;
 extern bool gbRefreshStop;
 extern bool gbThreadStop;
-extern HANDLE ghEvent;
 Cell *pCell1, *pCell2;
 Cell *pCells[NUMTESTS];
 int iCellBest;
@@ -437,8 +436,6 @@ gbRefreshStop = foo;
 				CopyAndReset(iCellBest);
 			}
 		//}
-
-		//WaitForSingleObject(ghEvent, INFINITE);
 	}
 
 	return 0;

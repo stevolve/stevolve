@@ -9,7 +9,7 @@ This is a platform for artificial life that is intended to be open-ended and ext
 
 ![Screenshot](/screenshot1.jpg)
 - The yellow/brown areas are "land", the rest is "water". It takes much more energy to move on land. The yellow area takes more energy to move than the brown areas. The intention is to encourage diversity.
-- For each of the property radio buttons at the top, except for 'instruction' the color of the cell represents its species and the brightness of the color represents the amount of the selected property.
+- For each of the property radio buttons at the top, except for 'instruction', the color of the cell represents its species and the brightness of the color represents the amount of the selected property.
 - For the 'instruction' property, the color represents the last instruction the cell executed: green = move, red = eat, blue = spawn
 
 **Directions:**
@@ -17,6 +17,7 @@ This is a platform for artificial life that is intended to be open-ended and ext
 - Press the 'new' button to generate a new world. It will generate cells with random dna and a large amount of energy. It may take a minute or two for the first tick of the clock.
 - Change the environment parameters using the 'settings' button.
 - Observe.
+- If you get interesting results, post the parameters used for other people to try.
 
 **Test World:**
 If you want to create your own Cell class, you can use the "test" world to see how it performs.  The test world creates 2 cells and an environment of food randomly scattered around them to see which one finds it first.  It makes a copy of the winner, mutates it, and runs the test again.

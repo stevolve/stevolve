@@ -317,20 +317,13 @@ int World::Start()
 		WaitForSingleObject(ghEvent, INFINITE);
 
 		// this code adds or subtracts energy based on overgrowth or undergrowth of cells
-		int iAdd = 1; // or -1 depending on amount of living cells
-		// 61440 = 80% of giWorldWidth * giWorldHeight
-		// 15360 = 20 % of giWorldWidth * giWorldHeight
-		if (iCheckCurrent > giWorldWidth * giWorldHeight * .25) iAdd = -200;
-		else iAdd = 0;
-		//giSunEnergy = 80000 / iCheckCurrent;
-		//giSunEnergy = (80000000 - min(iTotalEnergy, 80000000)) / iCheckCurrent;
-		//giSunEnergy = (giInFlowFreq * 200000 - min(iTotalEnergy, giInFlowFreq * 200000)) / iCheckCurrent;
-		iSunEnergy = (iCheckCurrent < (giWorldWidth * giWorldHeight / 4)) ? (giWorldWidth * giWorldHeight / 262) : 0;
-		//giSunEnergy = (iCheckCurrent < (giWorldWidth * giWorldHeight / 4)) ? 500 : 0;
+		int iAdd = 0;
+		if (iCheckCurrent > giWorldWidth * giWorldHeight * ((float)giChokePerc / 100.0f)) iAdd = -giEnergyInflow;
+		//iSunEnergy = 80000 / iCheckCurrent;
+		//iSunEnergy = (80000000 - min(iTotalEnergy, 80000000)) / iCheckCurrent;
+		//iSunEnergy = (giInFlowFreq * 200000 - min(iTotalEnergy, giInFlowFreq * 200000)) / iCheckCurrent;
+		//iSunEnergy = (iCheckCurrent < (giWorldWidth * giWorldHeight / 4)) ? (giWorldWidth * giWorldHeight / 262) : 0;
 		iSunEnergy = (giEnergyInflow + iAdd) * 10 + (rand() % 100); // rand() to simulate cloudy days
-#ifdef GRAVITY
-		giSunEnergy = 1850 + (rand() % 100); // '1850' for gravity simulation
-#endif // GRAVITY
 
 		uSunVert += 8;
 		if (uSunVert >= giWorldWidth)

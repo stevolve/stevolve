@@ -24,5 +24,6 @@ extern int iCostShareFail;
 extern int iCostMoveFail;
 extern int giCostInfo;
 extern int giMutationAmount;
+extern int giChokePerc;
 
 void ReadSettings();

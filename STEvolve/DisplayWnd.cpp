@@ -29,6 +29,7 @@ BEGIN_MESSAGE_MAP(CDisplayWnd, CWnd)
 	ON_WM_VSCROLL()
 	ON_WM_SIZE()
 	ON_WM_MOUSEMOVE()
+	ON_WM_LBUTTONDOWN()
 END_MESSAGE_MAP()
 
 
@@ -108,4 +109,12 @@ void CDisplayWnd::OnMouseMove(UINT nFlags, CPoint point)
 	SelectWatchCell(point.x, point.y);
 
 	CWnd::OnMouseMove(nFlags, point);
+}
+
+
+void CDisplayWnd::OnLButtonDown(UINT nFlags, CPoint point)
+{
+	// TODO: Add your message handler code here and/or call default
+
+	CWnd::OnLButtonDown(nFlags, point);
 }

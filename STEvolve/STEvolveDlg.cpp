@@ -308,6 +308,7 @@ void CSTEvolveDlg::OnSettingsButton()
 	dlg.m_iWorldTypesIndex = giWorldTypesIndex;
 	dlg.m_iCellTypesIndex = giCellTypesIndex;
 	dlg.m_iNumThreads = giNumThreads;
+	dlg.m_iChokePerc = giChokePerc;
 	dlg.m_bRunning = hThreadExecute != NULL;
 	dlg.DoModal();
 	giEnergyInflow = dlg.m_iEnergyInflow;
@@ -321,6 +322,7 @@ void CSTEvolveDlg::OnSettingsButton()
 	giWorldTypesIndex = dlg.m_iWorldTypesIndex;
 	giCellTypesIndex = dlg.m_iCellTypesIndex;
 	giNumThreads = dlg.m_iNumThreads;
+	giChokePerc = dlg.m_iChokePerc;
 }
 
 void CSTEvolveDlg::OnRadioChange(UINT id)

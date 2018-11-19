@@ -35,4 +35,5 @@ public:
 	int m_iCellTypesIndex;
 	virtual BOOL OnInitDialog();
 	int m_iNumThreads;
+	int m_iChokePerc;
 };
