@@ -303,7 +303,7 @@ void CSTEvolveDlg::OnSettingsButton()
 	dlg.m_iEatAmount = giEatAmount;
 	dlg.m_iDecayRate = giDecayRate;
 	dlg.m_iSpawnSucc = giCostSpawnSucc;
-	//dlg.m_iMutationRate = giMutationRate2;
+	dlg.m_iMutationRate = giMutationRate;
 	dlg.m_iMutationAmt = giMutationAmount;
 	dlg.m_iWorldTypesIndex = giWorldTypesIndex;
 	dlg.m_iCellTypesIndex = giCellTypesIndex;
@@ -317,7 +317,7 @@ void CSTEvolveDlg::OnSettingsButton()
 	giEatAmount = dlg.m_iEatAmount;
 	giDecayRate = dlg.m_iDecayRate;
 	giCostSpawnSucc = dlg.m_iSpawnSucc;
-	//giMutationRate2 = dlg.m_iMutationRate;
+	giMutationRate = dlg.m_iMutationRate;
 	giMutationAmount = dlg.m_iMutationAmt;
 	giWorldTypesIndex = dlg.m_iWorldTypesIndex;
 	giCellTypesIndex = dlg.m_iCellTypesIndex;

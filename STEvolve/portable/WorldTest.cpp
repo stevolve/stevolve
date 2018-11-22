@@ -121,21 +121,21 @@ void WorldTest::ResetWorld()
 
 				//water[x][y]->ID = cellIdCounter++;
 				pWorld->water[x][y]->bDead = true;
-pWorld->water[giWorldWidth / 2 + x][y]->bDead = true;
+				pWorld->water[giWorldWidth / 2 + x][y]->bDead = true;
 				//water[x][y]->facing = rand() % 8;
 				//water[x][y]->parentID = water[x][y]->ID;
 				//water[x][y]->lineage = water[x][y]->ID; // Lineage is copied in offspring
 				//water[x][y]->wMyColor = rand() % 240;
 				//water[x][y]->wChildColor = 0;
 				pWorld->water[x][y]->energy = 4000;
-pWorld->water[giWorldWidth / 2 + x][y]->energy = 4000;
+				pWorld->water[giWorldWidth / 2 + x][y]->energy = 4000;
 			}
 			else //if (water[x][y]->bDead)
 			{
 				pWorld->water[x][y]->energy = 0;
-pWorld->water[giWorldWidth / 2 + x][y]->energy = 0;
+				pWorld->water[giWorldWidth / 2 + x][y]->energy = 0;
 				pWorld->water[x][y]->bDead = true;
-pWorld->water[giWorldWidth / 2 + x][y]->bDead = true;
+				pWorld->water[giWorldWidth / 2 + x][y]->bDead = true;
 			}
 
 	// make sure no food it touching the cell when starting

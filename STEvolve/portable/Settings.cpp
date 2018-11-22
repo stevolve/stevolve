@@ -21,6 +21,7 @@ int giDecayRate = 10;
 int iCostShareFail = giCostShareSucc * 2;// 50;
 int iCostMoveFail = giCostMoveSucc;// *2;
 int giCostInfo = 5;
+int giMutationRate = 5;
 int giMutationAmount = 64; 
 int giChokePerc = 10; // limit cells to this percentage of the available space
 

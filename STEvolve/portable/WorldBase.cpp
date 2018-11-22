@@ -32,9 +32,6 @@ int iCheckCurrent = 0;
 
 int colorScheme = 0; // Currently selected color scheme 
 
-//int giMutationRate2 = 50; // program-based
-int giMutationRate2 = 5; // neural-based
-
 
 void SetPixel(int x, int y, Cell *c)
 {
@@ -348,7 +345,7 @@ int World::Start()
 		}
 
 		// mutate the first Cell (aCheckExec[0]) 
-		if (!(rand() % giMutationRate2))
+		if (!(rand() % giMutationRate))
 		{
 			Cell *pptr = water[aCheckExec[0].x][aCheckExec[0].y];
 			pptr->Mutate();

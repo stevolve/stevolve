@@ -23,6 +23,7 @@ extern int giDecayRate;
 extern int iCostShareFail;
 extern int iCostMoveFail;
 extern int giCostInfo;
+extern int giMutationRate;
 extern int giMutationAmount;
 extern int giChokePerc;
 

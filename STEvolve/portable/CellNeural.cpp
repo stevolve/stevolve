@@ -32,6 +32,11 @@ extern World *pWorld;
 #define ACTIONMIN -0.45
 #define ACTIONMAX 0.45*/
 
+// sigmoid function
+//#define ACTIVATION(a) 1.0 / (1.0 + exp(-a)) 
+// tanh function, seemed to work a little better
+#define ACTIVATION(a) 2.0 / (1.0 + exp(-a * 2)) - 1 
+
 void NeuralBasedCell::init()
 {
 	int i, j;
@@ -62,21 +67,21 @@ void NeuralBasedCell::DrawCell(int left, int top)
 	{
 		for (j = 0; j < NUMINPUTS; j++, k++)
 			SetPixelRGB(left + 2, top + k, weights1[i][j] < 0 ? RGB(-weights1[i][j] * 90, 0, 0) : RGB(0, 0, weights1[i][j] * 90));
-		//SetPixelRGB(left + 2, top + k + 1, RGB(255, 255, 255));
+		SetPixelRGB(left + 2, top + k + 1, RGB(255, 255, 255)); // separator
 		k += 2;
 	}
 	for (k = 0, i = 0; i < NUMNEURON2; i++)
 	{
 		for (j = 0; j < NUMNEURON1; j++, k++)
 			SetPixelRGB(left + 4, top + k, weights2[i][j] < 0 ? RGB(weights2[i][j] * 90, 0, 0) : RGB(0, 0, weights2[i][j] * 90));
-		//SetPixelRGB(left + 4, top + k + 1, RGB(255, 255, 255));
+		SetPixelRGB(left + 4, top + k + 1, RGB(255, 255, 255)); // separator
 		k += 2;
 	}
 	for (k = 0, i = 0; i < NUMOUTPUTS; i++)
 	{
 		for (j = 0; j < NUMNEURON2; j++, k++)
 			SetPixelRGB(left + 6, top + k, weights3[i][j] < 0 ? RGB(weights3[i][j] * 90, 0, 0) : RGB(0, 0, weights3[i][j] * 90));
-		//SetPixelRGB(left + 6, top + k + 1, RGB(255, 255, 255));
+		SetPixelRGB(left + 6, top + k + 1, RGB(255, 255, 255)); // separator
 		k += 2;
 	}
 	for (i = 0; i < NUMOUTPUTS; i++)
@@ -198,8 +203,6 @@ void NeuralBasedCell::Tick(int xCur, int yCur)
 
 		iCycles++;
 
-		// a = 1.0 / (1.0 + exp(-a)) : sigmoid function
-		// a = 2.0 / (1.0 + exp(-a * 2)) - 1 : tanh function, seemed to work a little better in a short test
 		for (i = 0; i < NUMNEURON1; i++)
 		{
 			a = weights1[i][0] * input[0];
@@ -207,7 +210,7 @@ void NeuralBasedCell::Tick(int xCur, int yCur)
 			a += weights1[i][2] * input[2];
 			a += weights1[i][3] * input[3];
 			a += weights1[i][4] * input[4];
-			a = 2.0 / (1.0 + exp(-a * 2)) - 1;
+			a = ACTIVATION(a);
 			neuron1[i] = a;
 		}
 
@@ -216,11 +219,12 @@ void NeuralBasedCell::Tick(int xCur, int yCur)
 /*			a = 0;
 			for (j = 0; j < NUMNEURON1; j++)
 				a += weights2[i][j] * neuron1[j];
-			a = 2.0 / (1.0 + exp(-a * 2)) - 1;
+			a = ACTIVATION(a);
 			//			output[i] = a - 0.5;
 			neuron2[i] = a;
 			//output[i] = synapse1[i] - 0.5;
-*/neuron2[i] = neuron1[i]; // this just copies the neuron, effectively skipping the layer. comment out to allow layer
+*/
+neuron2[i] = neuron1[i]; // this just copies the neuron, effectively skipping the layer. comment out to allow layer
 		}
 
 		for (i = 0; i < NUMOUTPUTS; i++)
@@ -228,7 +232,7 @@ void NeuralBasedCell::Tick(int xCur, int yCur)
 			a = 0;
 			for (j = 0; j < NUMNEURON2; j++)
 				a += weights3[i][j] * neuron2[j];
-			a = 2.0 / (1.0 + exp(-a * 2)) - 1;
+			a = ACTIVATION(a);
 			output[i] = a - 0.5;
 		}
 
