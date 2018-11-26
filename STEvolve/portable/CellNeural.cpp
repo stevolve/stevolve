@@ -17,24 +17,14 @@ extern World *pWorld;
 
 #define TURNMIN -0.3
 #define TURNMAX 0.3
-#define LOOKMIN -0.2
-#define LOOKMAX 0.2
-#define ACTIONMIN -0.01
-#define ACTIONMAX 0.01
-/*#define TURNMIN -0.3
-#define TURNMAX 0.3
-#define LOOKMIN -0.15
-#define LOOKMAX 0.15*/
-/*#define TURNMIN 0.0
-#define TURNMAX 0.0
-#define LOOKMIN 0.0
-#define LOOKMAX 0.0
-#define ACTIONMIN -0.45
-#define ACTIONMAX 0.45*/
+#define LOOKMIN -0.3
+#define LOOKMAX 0.3
+#define ACTIONMIN -0.3
+#define ACTIONMAX 0.3
 
 // sigmoid function
 //#define ACTIVATION(a) 1.0 / (1.0 + exp(-a)) 
-// tanh function, seemed to work a little better
+// tanh function
 #define ACTIVATION(a) 2.0 / (1.0 + exp(-a * 2)) - 1 
 
 void NeuralBasedCell::init()
@@ -62,7 +52,7 @@ void NeuralBasedCell::DrawCell(int left, int top)
 {
 	int i, j, k;
 	for (i = 0; i < NUMINPUTS; i++)
-		SetPixelRGB(left, top + i * 2, RGB(input[i] * 50, input[i] * 50, input[i] * 50));
+		SetPixelRGB(left, top + i * 2, RGB(abs(input[i]) * 250, abs(input[i]) * 250, abs(input[i]) * 250));
 	for (k = 0, i = 0; i < NUMNEURON1; i++)
 	{
 		for (j = 0; j < NUMINPUTS; j++, k++)
@@ -73,19 +63,31 @@ void NeuralBasedCell::DrawCell(int left, int top)
 	for (k = 0, i = 0; i < NUMNEURON2; i++)
 	{
 		for (j = 0; j < NUMNEURON1; j++, k++)
-			SetPixelRGB(left + 4, top + k, weights2[i][j] < 0 ? RGB(weights2[i][j] * 90, 0, 0) : RGB(0, 0, weights2[i][j] * 90));
+			SetPixelRGB(left + 4, top + k, weights2[i][j] < 0 ? RGB(-weights2[i][j] * 90, 0, 0) : RGB(0, 0, weights2[i][j] * 90));
 		SetPixelRGB(left + 4, top + k + 1, RGB(255, 255, 255)); // separator
 		k += 2;
 	}
 	for (k = 0, i = 0; i < NUMOUTPUTS; i++)
 	{
 		for (j = 0; j < NUMNEURON2; j++, k++)
-			SetPixelRGB(left + 6, top + k, weights3[i][j] < 0 ? RGB(weights3[i][j] * 90, 0, 0) : RGB(0, 0, weights3[i][j] * 90));
+			SetPixelRGB(left + 6, top + k, weights3[i][j] < 0 ? RGB(-weights3[i][j] * 90, 0, 0) : RGB(0, 0, weights3[i][j] * 90));
 		SetPixelRGB(left + 6, top + k + 1, RGB(255, 255, 255)); // separator
 		k += 2;
 	}
-	for (i = 0; i < NUMOUTPUTS; i++)
-		SetPixelRGB(left + 8, top + i * 2, output[i] < 0 ? RGB(0, -output[i] * 90, 0) : RGB(output[i] * 90, 0, 0));
+	if (output[0] < TURNMIN) SetPixelRGB(left + 8, top + 0 * 2, RGB(-output[0] * 250, 0, 0));				// red: turn left
+	else if (output[0] > TURNMAX) SetPixelRGB(left + 8, top + 0 * 2, RGB(0, output[0] * 250, 0));			// green: turn right
+	else SetPixelRGB(left + 8, top + 0 * 2, RGB(output[0] * 250, output[0] * 250, output[0] * 250));		// white: no turn
+	if (output[1] < LOOKMIN) SetPixelRGB(left + 8, top + 1 * 2, RGB(-output[1] * 250, 0, 0));				// red: look
+	else if (output[1] > LOOKMAX)
+	{
+		SetPixelRGB(left + 8, top + 1 * 2, RGB(0, output[1] * 250, 0));										// green: action
+		if (output[2] < ACTIONMIN) SetPixelRGB(left + 8, top + 2 * 2, RGB(0, -output[2] * 250, 0));				// green: move
+		else if (output[2] > ACTIONMAX) SetPixelRGB(left + 8, top + 2 * 2, RGB(output[2] * 250, 0, 0));			// red: share
+		else SetPixelRGB(left + 8, top + 2 * 2, RGB(0, 0, abs(output[2]) * 250));								// blue: spawn
+	}	
+	else SetPixelRGB(left + 8, top + 1 * 2, RGB(abs(output[1]) * 250, abs(output[1]) * 250, 0));			// yellow: break
+	for (i = 3; i < NUMOUTPUTS; i++)
+		SetPixelRGB(left + 8, top + i * 2, output[i] < 0 ? RGB(-output[i] * 250, 0, 0) : RGB(0, output[i] * 250, 0));
 }
 
 void NeuralBasedCell::Mutate()
@@ -198,7 +200,8 @@ void NeuralBasedCell::Tick(int xCur, int yCur)
 		//input[0] = energy / 10000.0f;
 		input[0] = __min(energy, 10000) / 10000.0f;
 		//Look(xCur, yCur);
-		//input[1] = (11 - reg) / 10.0f;
+		//input[1] = reg / 10.0f;
+		//input[1] = reg ? (11 - reg) / 10.0f : 0.0f;
 
 
 		iCycles++;
@@ -220,9 +223,8 @@ void NeuralBasedCell::Tick(int xCur, int yCur)
 			for (j = 0; j < NUMNEURON1; j++)
 				a += weights2[i][j] * neuron1[j];
 			a = ACTIVATION(a);
-			//			output[i] = a - 0.5;
+			//output[i] = a;
 			neuron2[i] = a;
-			//output[i] = synapse1[i] - 0.5;
 */
 neuron2[i] = neuron1[i]; // this just copies the neuron, effectively skipping the layer. comment out to allow layer
 		}
@@ -233,7 +235,7 @@ neuron2[i] = neuron1[i]; // this just copies the neuron, effectively skipping th
 			for (j = 0; j < NUMNEURON2; j++)
 				a += weights3[i][j] * neuron2[j];
 			a = ACTIVATION(a);
-			output[i] = a - 0.5;
+			output[i] = a;
 		}
 
 		input[2] = output[3];
@@ -246,8 +248,8 @@ neuron2[i] = neuron1[i]; // this just copies the neuron, effectively skipping th
 		if (output[1] < LOOKMIN)
 		{
 			Look(xCur, yCur);
-			//input[1] = reg;
-			input[1] = (11 - reg) / 10.0f;
+			input[1] = reg / 10.0f;
+			//input[1] = reg ? (11 - reg) / 10.0f : 0.0f;
 			iInstructionCounter[LOOK]++;
 			prevInst = LOOK;
 		}
