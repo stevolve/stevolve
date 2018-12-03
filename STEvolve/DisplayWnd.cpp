@@ -5,6 +5,7 @@
 #include "STEvolve.h"
 #include "DisplayWnd.h"
 
+void MouseWatchCell(int, int);
 void SelectWatchCell(int, int);
 
 int giVScrollPos = 0;
@@ -106,7 +107,7 @@ void CDisplayWnd::OnSize(UINT nType, int cx, int cy)
 
 void CDisplayWnd::OnMouseMove(UINT nFlags, CPoint point)
 {
-	SelectWatchCell(point.x, point.y);
+	MouseWatchCell(point.x, point.y);
 
 	CWnd::OnMouseMove(nFlags, point);
 }
@@ -114,7 +115,7 @@ void CDisplayWnd::OnMouseMove(UINT nFlags, CPoint point)
 
 void CDisplayWnd::OnLButtonDown(UINT nFlags, CPoint point)
 {
-	// TODO: Add your message handler code here and/or call default
+	SelectWatchCell(point.x, point.y);
 
 	CWnd::OnLButtonDown(nFlags, point);
 }

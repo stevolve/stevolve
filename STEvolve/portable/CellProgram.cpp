@@ -27,24 +27,49 @@ void ProgramBasedCell::init()
 
 void ProgramBasedCell::Seed()
 {
-	genome[0] = INFO; // use as a sort of random number
-	genome[1] = LOOK;
-	genome[2] = IF;
-	genome[3] = 6; // forward to PUSH
-	genome[4] = MOVE;
-	genome[5] = JUMP; // back to 0
-	genome[6] = PUSH;
-	genome[7] = POP;
-	genome[8] = DEC;
-	genome[9] = IF;
-	genome[10] = 13; // forward to MOVE
-	genome[11] = SHARE;
-	genome[12] = JUMP; // back to 0
-	genome[13] = MOVE;
-	genome[14] = PUSH;
-	genome[15] = XCHG;
-	genome[16] = 7; 
-	genome[17] = JUMP;  // back to POP
+	genome[0] = XOR; // 'nop' the first 3 genomes will get blased by a mutation
+	genome[1] = XOR; // 'nop'
+	genome[2] = XOR; // 'nop'
+	genome[3] = INFO; // use as a sort of random number
+	genome[4] = LOOK;
+	genome[5] = IF;
+	genome[6] = 9; // forward to PUSH
+	genome[7] = MOVE;
+	genome[8] = JUMP; // back to 0
+	genome[9] = PUSH;
+	genome[10] = POP;
+	genome[11] = DEC;
+	genome[12] = IF;
+	genome[13] = 31; // forward to MOVE
+	genome[14] = SHARE; // we're right next to it, take a bite
+	genome[15] = INFO; // get current energy level
+	genome[16] = SHIFTR;
+	genome[17] = SHIFTR;
+	genome[18] = SHIFTR;
+	genome[19] = SHIFTR;
+	genome[20] = SHIFTR;
+	genome[21] = SHIFTR;
+	genome[22] = SHIFTR;
+	genome[23] = SHIFTR;
+	genome[24] = SHIFTR;
+	genome[25] = SHIFTR;
+	genome[26] = IF;
+	genome[27] = 29; // forward to SPAWN
+	genome[28] = JUMP; // back to 0
+	genome[29] = SPAWN;
+	genome[30] = JUMP; // back to 0
+	genome[31] = MOVE;
+	genome[32] = PUSH;
+	genome[33] = XCHG;
+	genome[34] = 10; 
+	genome[35] = JUMP;  // back to POP
+
+	int j = 0;
+	for (int i = 36; i < GENOME_DEPTH; i++)
+	{
+		genome[i] = genome[j];
+		j = (j >= 36) ? 0 : j + 1;
+	}
 }
 
 void ProgramBasedCell::Dump(FILE *d)
@@ -67,7 +92,7 @@ int GetColor(uint8_t i)
 	case POP: return 40; break;
 	case INC:
 	case DEC:
-	case SHIFTL:
+	case SHIFTR:
 	case NOT:
 	case XOR:
 	case AND:
@@ -90,7 +115,7 @@ int GetColor(uint8_t i)
 void ProgramBasedCell::DrawCell(int left, int top)
 {
 	int i, lum, color;
-	left++; // makes it easier to see
+	left += 2; // makes it easier to see
 
 	for (i = 0; i < GENOME_DEPTH; i++)
 	{
@@ -378,8 +403,8 @@ void ProgramBasedCell::Tick(int xCur, int yCur)
 			instPtr = (instPtr + 1) % GENOME_DEPTH;
 			break;
 
-		case SHIFTL: // SHIFTL: Shift left
-			reg <<= 1;
+		case SHIFTR: // SHIFTR: Shift right
+			reg >>= 1;
 			energy -= __min(energy, 1);
 			instPtr = (instPtr + 1) % GENOME_DEPTH;
 			break;

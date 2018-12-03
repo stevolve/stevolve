@@ -35,17 +35,17 @@ void SetPixelRGB(int x, int y, unsigned long rgb)
 void ClearPixels()
 {
 	::FillRect(ghMemDC, CRect(0, 0, giWorldWidth, giWorldHeight), (HBRUSH)::GetStockObject(BLACK_BRUSH));
-	//::FillRect(ghMemDC, CRect(giWorldWidth + 1, 0, giWorldWidth + 1 + 9, giWorldHeight), (HBRUSH)::GetStockObject(DKGRAY_BRUSH));
+	::FillRect(ghMemDC, CRect(giWorldWidth + 1, 0, giWorldWidth + 1 + 9, giWorldHeight), (HBRUSH)::GetStockObject(DKGRAY_BRUSH));
 }
 
 void UpdateDisplay()
 {
+	if (gpWatchCell) gpWatchCell->DrawCell(giWorldWidth + 1, 0);
 	::StretchBlt(ghCurrentDC, 0, 0, (giWorldWidth + 1 + 9) * giMagnification, giWorldHeight * giMagnification, ghMemDC, giHScrollPos, giVScrollPos, giWorldWidth + 1 + 9, giWorldHeight, SRCCOPY);
 	if (gpWatchCell)
 	{
 		int i = giMagnification;
 		Cell *p = gpWatchCell;
-		gpWatchCell->DrawCell(giWorldWidth + 1, 0);
 		switch (gpWatchCell->facing)
 		{
 		case 0:
@@ -100,22 +100,29 @@ void UpdateDisplay()
 				p->x * 3 - i,		p->y * 3 + 3 + i,	p->x * 3 - i,		p->y * 3 - i
 				p->x * 3 - i,		p->y * 3 + i,		p->x * 3,			p->y * 3 - i
 */
+
+void MouseWatchCell(int x, int y)
+{
+	if (!bThreadPause) return;
+
+	if (x >= giWorldWidth * giMagnification || y >= giWorldHeight * giMagnification)
+		return;
+
+	Cell *pCell = pWorld->water[x / giMagnification][y / giMagnification];
+	if (pCell && pCell->energy)
+	{
+		gpWatchCell = pCell;
+		//UpdateStats(pCell);
+		if (bThreadPause) UpdateDisplay();
+	}
+}
+
 void SelectWatchCell(int x, int y)
 {
-	// not ready yet
-	if (bThreadPause)
-	{
-		if (x >= giWorldWidth * giMagnification || y >= giWorldHeight * giMagnification)
-			return;
+	if (!bThreadPause) return;
 
-		Cell *pCell = pWorld->water[x / giMagnification][y / giMagnification];
-		if (pCell && pCell->energy)
-		{
-			gpWatchCell = pCell;
-			//UpdateStats(pCell);
-			if (bThreadPause) UpdateDisplay();
-		}
-	}
+	if (x >= giWorldWidth * giMagnification || y >= giWorldHeight * giMagnification)
+		return;
 }
 
 void UpdateStatusbar(CString &szText)

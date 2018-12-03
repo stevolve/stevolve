@@ -7,7 +7,7 @@
 #define OR     0x3
 #define INC    0x4
 #define DEC    0x5
-#define SHIFTL 0x6
+#define SHIFTR 0x6
 #define IF     0x7
 #define JUMP   0x8
 #define LOADP  0x9

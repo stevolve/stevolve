@@ -228,7 +228,7 @@ int WorldTest::Start()
 	Init();
 	giCostSpawnFail = 50;
 	giCostInfo = 100;
-	giEnergyInflow = 5000;
+	giEnergyInflow = 8000;
 
 	xPos = giWorldWidth / 4;
 	yPos = giWorldHeight / 2;

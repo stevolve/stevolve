@@ -57,21 +57,21 @@ void NeuralBasedCell::DrawCell(int left, int top)
 	{
 		for (j = 0; j < NUMINPUTS; j++, k++)
 			SetPixelRGB(left + 2, top + k, weights1[i][j] < 0 ? RGB(-weights1[i][j] * 90, 0, 0) : RGB(0, 0, weights1[i][j] * 90));
-		SetPixelRGB(left + 2, top + k + 1, RGB(255, 255, 255)); // separator
+		//SetPixelRGB(left + 2, top + k + 1, RGB(255, 255, 255)); // separator
 		k += 2;
 	}
 	for (k = 0, i = 0; i < NUMNEURON2; i++)
 	{
 		for (j = 0; j < NUMNEURON1; j++, k++)
 			SetPixelRGB(left + 4, top + k, weights2[i][j] < 0 ? RGB(-weights2[i][j] * 90, 0, 0) : RGB(0, 0, weights2[i][j] * 90));
-		SetPixelRGB(left + 4, top + k + 1, RGB(255, 255, 255)); // separator
+		//SetPixelRGB(left + 4, top + k + 1, RGB(255, 255, 255)); // separator
 		k += 2;
 	}
 	for (k = 0, i = 0; i < NUMOUTPUTS; i++)
 	{
 		for (j = 0; j < NUMNEURON2; j++, k++)
 			SetPixelRGB(left + 6, top + k, weights3[i][j] < 0 ? RGB(-weights3[i][j] * 90, 0, 0) : RGB(0, 0, weights3[i][j] * 90));
-		SetPixelRGB(left + 6, top + k + 1, RGB(255, 255, 255)); // separator
+		//SetPixelRGB(left + 6, top + k + 1, RGB(255, 255, 255)); // separator
 		k += 2;
 	}
 	if (output[0] < TURNMIN) SetPixelRGB(left + 8, top + 0 * 2, RGB(-output[0] * 250, 0, 0));				// red: turn left
@@ -87,7 +87,7 @@ void NeuralBasedCell::DrawCell(int left, int top)
 	}	
 	else SetPixelRGB(left + 8, top + 1 * 2, RGB(abs(output[1]) * 250, abs(output[1]) * 250, 0));			// yellow: break
 	for (i = 3; i < NUMOUTPUTS; i++)
-		SetPixelRGB(left + 8, top + i * 2, output[i] < 0 ? RGB(-output[i] * 250, 0, 0) : RGB(0, output[i] * 250, 0));
+		SetPixelRGB(left + 8, top + i * 2, output[i] < 0 ? RGB(-output[i] * 250, 0, 0) : RGB(0, 0, output[i] * 250));
 }
 
 void NeuralBasedCell::Mutate()
