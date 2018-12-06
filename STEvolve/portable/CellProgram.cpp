@@ -40,7 +40,7 @@ void ProgramBasedCell::Seed()
 	genome[10] = POP;
 	genome[11] = DEC;
 	genome[12] = IF;
-	genome[13] = 31; // forward to MOVE
+	genome[13] = 33; // forward to MOVE
 	genome[14] = SHARE; // we're right next to it, take a bite
 	genome[15] = INFO; // get current energy level
 	genome[16] = SHIFTR;
@@ -57,12 +57,14 @@ void ProgramBasedCell::Seed()
 	genome[27] = 29; // forward to SPAWN
 	genome[28] = JUMP; // back to 0
 	genome[29] = SPAWN;
-	genome[30] = JUMP; // back to 0
-	genome[31] = MOVE;
-	genome[32] = PUSH;
-	genome[33] = XCHG;
-	genome[34] = 10; 
-	genome[35] = JUMP;  // back to POP
+	genome[30] = XCHG;
+	genome[31] = 3;
+	genome[32] = JUMP; // back to INFO
+	genome[33] = MOVE;
+	genome[34] = PUSH;
+	genome[35] = XCHG;
+	genome[36] = 10; 
+	genome[37] = JUMP;  // back to POP
 
 	int j = 0;
 	for (int i = 36; i < GENOME_DEPTH; i++)
@@ -178,7 +180,7 @@ bool ProgramBasedCell::Spawn(int xCur, int yCur)
 {
 	// Copy outputBuf into neighbor 
 	ProgramBasedCell *tmpptr = (ProgramBasedCell *)pWorld->getNeighborPtr(xCur, yCur, facing);
-	if (!tmpptr->energy && energy >= (giCostSpawnSucc + 2)) // '+ 2' to ensure both have some energy
+	if (!tmpptr->energy && energy >= (giCostSpawnSucc + 10)) // '+ 10' to ensure both have some energy
 	{
 		tmpptr->ID = ++pWorld->cellIDCounter;
 		tmpptr->bDead = false;
@@ -211,10 +213,10 @@ bool ProgramBasedCell::Spawn(int xCur, int yCur)
 		case D_WEST:  tmpptr->facing = D_EAST; break;
 		case D_NW:    tmpptr->facing = D_SE;  break;
 		}
+
+		energy -= giCostSpawnSucc; // we already confirmed energy > giCostSpawnSucc + 10, no min() needed
 		tmpptr->energy = energy * .5;
 		energy = energy * .5;
-
-		energy -= __min(energy, giCostSpawnSucc);
 		return true;
 	}
 	else
@@ -261,6 +263,7 @@ void ProgramBasedCell::Tick(int xCur, int yCur)
 		if (linecount[instPtr] == 255)
 			linecount[instPtr] = 128; // so that the high order bit is always set
 
+//Trace("cell=0x%x ptr=%d inst=%d reg=%d\n", (int)this, (int)instPtr, (int)inst, (int)reg);
 		switch (inst)
 		{
 		case MOVE: // MOVE: 

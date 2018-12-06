@@ -131,7 +131,7 @@ bool NeuralBasedCell::Spawn(int xCur, int yCur)
 	// junk eventually. 
 	NeuralBasedCell *tmpptr = (NeuralBasedCell *)pWorld->getNeighborPtr(xCur, yCur, facing);
 //	while (tmpptr->af.test_and_set()) ; // spin-lock
-	if (!tmpptr->energy && energy >= (giCostSpawnSucc + 2)) // '+ 2' to ensure both have some energy
+	if (!tmpptr->energy && energy >= (giCostSpawnSucc + 10)) // '+ 10' to ensure both have some energy
 	{
 		tmpptr->ID = ++pWorld->cellIDCounter;
 		tmpptr->bDead = false;
@@ -163,10 +163,10 @@ bool NeuralBasedCell::Spawn(int xCur, int yCur)
 		case D_WEST:  tmpptr->facing = D_EAST; break;
 		case D_NW:    tmpptr->facing = D_SE;  break;
 		}
+
+		energy -= giCostSpawnSucc; // we already confirmed energy > giCostSpawnSucc + 10, no min() needed
 		tmpptr->energy = energy * .5;
 		energy = energy * .5;
-
-		energy -= __min(energy, giCostSpawnSucc);
 		bRet = true;
 	}
 	else

@@ -108,13 +108,13 @@ void MouseWatchCell(int x, int y)
 	if (x >= giWorldWidth * giMagnification || y >= giWorldHeight * giMagnification)
 		return;
 
-	Cell *pCell = pWorld->water[x / giMagnification][y / giMagnification];
+/*	Cell *pCell = pWorld->water[x / giMagnification][y / giMagnification];
 	if (pCell && pCell->energy)
 	{
 		gpWatchCell = pCell;
 		//UpdateStats(pCell);
 		if (bThreadPause) UpdateDisplay();
-	}
+	}*/
 }
 
 void SelectWatchCell(int x, int y)
@@ -123,6 +123,14 @@ void SelectWatchCell(int x, int y)
 
 	if (x >= giWorldWidth * giMagnification || y >= giWorldHeight * giMagnification)
 		return;
+
+	Cell *pCell = pWorld->water[x / giMagnification][y / giMagnification];
+	if (pCell && pCell->energy)
+	{
+		gpWatchCell = pCell;
+		//UpdateStats(pCell);
+		if (bThreadPause) UpdateDisplay();
+	}
 }
 
 void UpdateStatusbar(CString &szText)

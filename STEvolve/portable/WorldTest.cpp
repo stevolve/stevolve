@@ -16,7 +16,7 @@ extern World *pWorld;
 
 #define RGB(r,g,b)          ((unsigned long)(((unsigned char)(r)|((unsigned short)((unsigned char)(g))<<8))|(((unsigned long)(unsigned char)(b))<<16)))
 
-#define NUMTESTS 25
+#define NUMTESTS 2
 
 void SetPixel(int x, int y, Cell *c);
 
@@ -247,7 +247,7 @@ void WorldTest::TestInit(Cell *pCell)
 
 	pCell->ID = pWorld->cellIDCounter++;
 	pCell->bDead = false;
-	pCell->facing = rand() % 8;
+	pCell->facing = 0;
 	pCell->parentID = pCell->ID;
 	pCell->lineage = pCell->ID; // Lineage is copied in offspring
 	pCell->wMyColor = rand() % 240;
@@ -357,8 +357,7 @@ int iAllCycles = 0;
 	iAllCycles = 0;
 }*/
 
-//		if (pCell1->energy && pCell2->energy)
-		if (pCell1->energy || pCell2->energy)
+/*		if (pCell1->energy || pCell2->energy)
 		{
 			if (pCell1->steals > pCell2->steals) // pCell1 steals first
 			{
@@ -382,44 +381,26 @@ int iAllCycles = 0;
 				iFailScore = 0;
 			}
 		}
-		/*else if (pCell1->energy > pCell2->energy)
-		{
-			CopyAndReset(1);
-		}
-		else if (pCell1->energy < pCell2->energy)
-		{
-			CopyAndReset(2);
-		}*/
-		else if (!pCell1->energy && !pCell2->energy)
-		/*{
-			if (pCell1->iCycles > pCell2->iCycles)
+		else*/ if (!pCell1->energy && !pCell2->energy)
 			{
-				CopyAndReset(1);
-			}
-			else if (pCell1->iCycles < pCell2->iCycles)
-			{
-				CopyAndReset(2);
-			}
-			else if (pCell1->iInstructionCounter[MOVE] > pCell2->iInstructionCounter[MOVE])
-			{
-				CopyAndReset(1);
-			}
-			else if (pCell1->iInstructionCounter[MOVE] < pCell2->iInstructionCounter[MOVE])
-			{
-				CopyAndReset(2);
-			}
-			else if (pCell1->iInstructionCounter[LOOK] > pCell2->iInstructionCounter[LOOK])
-			{
-				CopyAndReset(1);
-			}
-			else if (pCell1->iInstructionCounter[LOOK] < pCell2->iInstructionCounter[LOOK])
-			{
-				CopyAndReset(2);
-			}
-			else*/ // both are without energy
-			{
-bool foo = gbRefreshStop;
-gbRefreshStop = true;
+if (pCell1->steals > pCell2->steals) // pCell1 steals first
+{
+	if (iCellBest != 1) 
+		Trace("Cell1 wins, generation=%u, highscore=%d\n", (unsigned int)pCell1->ID, iHighScore);
+	foodperc++;
+	CopyAndReset(1);
+	iFailScore = 0;
+}
+else if (pCell1->steals < pCell2->steals) // pCell2 steals first
+{
+	if (iCellBest != 2) 
+		Trace("Cell2 wins, generation=%u, highscore=%d\n", (unsigned int)pCell2->ID, iHighScore);
+	foodperc++;
+	CopyAndReset(2);
+	iFailScore = 0;
+}
+else 
+{
 				if (foodperc > iHighScore) Trace("highscore=%d foodperc=%d best=%d externalcycles=%d looks=%d moves=%d generation=%u\n", 
 												iHighScore, foodperc, iCellBest, (int)pCell1->iExternalCycles, 
 												(int)pCell1->iInstructionCounter[LOOK], (int)pCell1->iInstructionCounter[MOVE], (unsigned int)pCell1->ID);
@@ -430,12 +411,11 @@ gbRefreshStop = true;
 					foodperc = max(FOODSTART, foodperc - (int)(iFailScore / 10)); // increase food if it keeps failing
 					Trace("increasing food to:%d due to many failures:%d, highscore=%d best=%d\n", foodperc, (int)(iFailScore / 10), iHighScore, iCellBest);
 				}
-gbRefreshStop = foo;
 				//foodperc = FOODSTART;
 				//foodperc = max(FOODSTART, foodperc - 1);
 				CopyAndReset(iCellBest);
 			}
-		//}
+		}
 	}
 
 	return 0;
