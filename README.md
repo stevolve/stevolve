@@ -7,6 +7,8 @@ This is a platform for artificial life that is intended to be open-ended, extend
 - there is no attempt to define a "plant" or "animal" organism, they are expected to evolve into their own purpose
 - organisms can Move/Look/Spawn/Eat(Share)
 
+Try the [web version](https://stevolve.github.io/stevolve), no download required!
+
 ![Screenshot](/screenshot1.jpg)
 - The yellow/brown areas are "land", the rest is "water". It takes much more energy to move on land. The yellow area takes more energy to move than the brown areas. The intention is to encourage diversity.
 - For each of the property radio buttons at the top, except for 'instruction', the color of the cell represents its species and the brightness of the color represents the amount of the selected property.
