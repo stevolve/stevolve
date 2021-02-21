@@ -123,7 +123,7 @@ void ProgramBasedCell::DrawCell(int left, int top)
 	{
 		color = GetColor(genome[i]);
 
-		if (linecount[i]) lum = __min(linecount[i] + 20, 220);
+		if (linecount[i]) lum = MIN(linecount[i] + 20, 220);
 		else lum = 10;
 
 		SetPixelHLS(left + i / giWorldHeight, top + i % giWorldHeight, color, lum);
@@ -221,7 +221,7 @@ bool ProgramBasedCell::Spawn(int xCur, int yCur)
 	}
 	else
 	{
-		energy -= __min(energy, giCostSpawnFail);
+		energy -= MIN(energy, giCostSpawnFail);
 		return false;
 	}
 }
@@ -274,48 +274,48 @@ void ProgramBasedCell::Tick(int xCur, int yCur)
 		case PUSH: // PUSH: reg onto stack
 			if (StackPtr < STACK_DEPTH - 1)
 				Stack[StackPtr++] = reg;
-			else energy -= __min(energy, 400);
-			energy -= __min(energy, (StackPtr / 32) + 1);
+			else energy -= MIN(energy, 400);
+			energy -= MIN(energy, (StackPtr / 32) + 1);
 			instPtr = (instPtr + 1) % GENOME_DEPTH;
 			break;
 		case POP: // POP: reg from stack
 			if (StackPtr)
 				reg = Stack[--StackPtr];
-			else energy -= __min(energy, 5);
-			energy -= __min(energy, 1);
+			else energy -= MIN(energy, 5);
+			energy -= MIN(energy, 1);
 			instPtr = (instPtr + 1) % GENOME_DEPTH;
 			break;
 
 		case INC: // INC: Increment the register 
 			reg = (reg + 1) & 0xffff;
-			energy -= __min(energy, 1);
+			energy -= MIN(energy, 1);
 			instPtr = (instPtr + 1) % GENOME_DEPTH;
 			break;
 		case DEC: // DEC: Decrement the register 
 			if (reg) reg--;
-			energy -= __min(energy, 1);
+			energy -= MIN(energy, 1);
 			instPtr = (instPtr + 1) % GENOME_DEPTH;
 			break;
 
 		case READG: // READG: Read into the register from genome 
 			reg = genome[ptrPtr];// & 0xf;
-			energy -= __min(energy, 1);
+			energy -= MIN(energy, 1);
 			instPtr = (instPtr + 1) % GENOME_DEPTH;
 			break;
 		case WRITEG: // WRITEG: Write out from the register to genome 
 			//if (!bTesting) // we don't want to overwrite while testing
 				genome[ptrPtr] = reg;// & 0xf;
-			energy -= __min(energy, 1);
+			energy -= MIN(energy, 1);
 			instPtr = (instPtr + 1) % GENOME_DEPTH;
 			break;
 		case READB: // READB: Read into the register from buffer 
 			reg = outputBuf[ptrPtr];// & 0xf;
-			energy -= __min(energy, 1);
+			energy -= MIN(energy, 1);
 			instPtr = (instPtr + 1) % GENOME_DEPTH;
 			break;
 		case WRITEB: // WRITEB: Write out from the register to buffer 
 			outputBuf[ptrPtr] = reg;// & 0xf;
-			energy -= __min(energy, 1);
+			energy -= MIN(energy, 1);
 			instPtr = (instPtr + 1) % GENOME_DEPTH;
 			break;
 
@@ -342,12 +342,12 @@ void ProgramBasedCell::Tick(int xCur, int yCur)
 			//	if (instPtr < (GENOME_DEPTH - 1)) instPtr++; 
 			//	else instPtr = EXEC_START_WORD; // will be incremented at the end of this switch statement
 			//}
-			energy -= __min(energy, 1);
+			energy -= MIN(energy, 1);
 			break;
 
 		case JUMP:
 			instPtr = reg % GENOME_DEPTH;
-			energy -= __min(energy, 1);
+			energy -= MIN(energy, 1);
 			//instPtr--; // because it will be added to at the end of this switch statement
 			//instPtr = (instPtr + 1) % GENOME_DEPTH;
 			break;
@@ -357,18 +357,18 @@ void ProgramBasedCell::Tick(int xCur, int yCur)
 		//		instPtr = Stack[StackPtr];
 		//
 		//	}
-		//	energy -= __min(energy) % GENOME_DEPTH;
+		//	energy -= MIN(energy) % GENOME_DEPTH;
 		//	break;
 		case LOADP: // Load with current value of register: 
 			ptrPtr = reg % GENOME_DEPTH;
-			energy -= __min(energy, 1);
+			energy -= MIN(energy, 1);
 			instPtr = (instPtr + 1) % GENOME_DEPTH;
 			break;
 
 		case TURN: // TURN: Turn in the direction specified by register 
 			//facing = reg & 3;
 			reg >>= 1; // SHIFTR: Shift right
-			energy -= __min(energy, 1);
+			energy -= MIN(energy, 1);
 			instPtr = (instPtr + 1) % GENOME_DEPTH;
 			break;
 
@@ -376,7 +376,7 @@ void ProgramBasedCell::Tick(int xCur, int yCur)
 			if (instPtr < (GENOME_DEPTH - 1)) instPtr++;
 			else instPtr = 0;
 			reg = genome[instPtr];
-			energy -= __min(energy, 1);
+			energy -= MIN(energy, 1);
 			instPtr = (instPtr + 1) % GENOME_DEPTH;
 			break;
 
@@ -408,34 +408,34 @@ void ProgramBasedCell::Tick(int xCur, int yCur)
 
 		case SHIFTR: // SHIFTR: Shift right
 			reg >>= 1;
-			energy -= __min(energy, 1);
+			energy -= MIN(energy, 1);
 			instPtr = (instPtr + 1) % GENOME_DEPTH;
 			break;
 
 		case NOT:
 			reg = ~reg;
-			energy -= __min(energy, 1);
+			energy -= MIN(energy, 1);
 			instPtr = (instPtr + 1) % GENOME_DEPTH;
 			break;
 		case XOR:
 			reg ^= Stack[StackPtr];
-			energy -= __min(energy, 1);
+			energy -= MIN(energy, 1);
 			instPtr = (instPtr + 1) % GENOME_DEPTH;
 			break;
 		case AND:
 			reg &= Stack[StackPtr];
-			energy -= __min(energy, 1);
+			energy -= MIN(energy, 1);
 			instPtr = (instPtr + 1) % GENOME_DEPTH;
 			break;
 		case OR:
 			reg |= Stack[StackPtr];
-			energy -= __min(energy, 1);
+			energy -= MIN(energy, 1);
 			instPtr = (instPtr + 1) % GENOME_DEPTH;
 			break;
 
 		case INFO: // get information about yourself
 			reg = energy;
-			energy -= __min(energy, giCostInfo);
+			energy -= MIN(energy, giCostInfo);
 			iExecuteAmount = 0;
 			instPtr = (instPtr + 1) % GENOME_DEPTH;
 			break;

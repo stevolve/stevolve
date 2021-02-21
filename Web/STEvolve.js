@@ -1826,7 +1826,7 @@ function isFileURI(filename) {
 
 
 
-var wasmBinaryFile = 'test.wasm';
+var wasmBinaryFile = 'STEvolve.wasm';
 if (!isDataURI(wasmBinaryFile)) {
   wasmBinaryFile = locateFile(wasmBinaryFile);
 }

@@ -117,7 +117,7 @@ void NeuralBasedCell::Turn(int reg)
 	case D_WEST:  facing = (reg & 1) ? D_NW : D_SW; break;
 	case D_NW:    facing = (reg & 1) ? D_NORTH : D_WEST; break;
 	}
-	energy -= __min(energy, 2);
+	energy -= MIN(energy, 2);
 }
 
 bool NeuralBasedCell::Spawn(int xCur, int yCur)
@@ -171,7 +171,7 @@ bool NeuralBasedCell::Spawn(int xCur, int yCur)
 	}
 	else
 	{
-		energy -= __min(energy, giCostSpawnFail);
+		energy -= MIN(energy, giCostSpawnFail);
 		bRet = false;
 	}
 
@@ -198,7 +198,7 @@ void NeuralBasedCell::Tick(int xCur, int yCur)
 		double a;
 
 		//input[0] = energy / 10000.0f;
-		input[0] = __min(energy, 10000) / 10000.0f;
+		input[0] = MIN(energy, 10000) / 10000.0f;
 		//Look(xCur, yCur);
 		//input[1] = reg / 10.0f;
 		//input[1] = reg ? (11 - reg) / 10.0f : 0.0f;
@@ -286,7 +286,7 @@ neuron2[i] = neuron1[i]; // this just copies the neuron, effectively skipping th
 		}
 		else
 		{
-			energy -= __min(energy, giCostInfo); // just to make sure it doesn't infinite loop
+			energy -= MIN(energy, giCostInfo); // just to make sure it doesn't infinite loop
 			prevInst = INFO;
 			break;
 		}
