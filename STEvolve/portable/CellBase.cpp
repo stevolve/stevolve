@@ -1,7 +1,6 @@
 #include <atomic>
 #include <stdio.h>
 #include <stdint.h>
-#include <stdlib.h> // for min()/max()
 
 #include "Settings.h"
 #include "CellBase.h"
@@ -64,7 +63,7 @@ void Cell::Look(int xCur, int yCur)
 			break;
 		}
 	}
-	energy -= __min(energy, 2);
+	energy -= MIN(energy, 2);
 }
 
 bool Cell::Move(int xCur, int yCur)
@@ -84,12 +83,12 @@ bool Cell::Move(int xCur, int yCur)
 tmpptr->x = xCur; tmpptr->y = yCur;
 		this->x = cell.x; this->y = cell.y;
 
-		energy -= __min(energy, giCostMoveSucc + pWorld->land[x][y]);
+		energy -= MIN(energy, giCostMoveSucc + pWorld->land[x][y]);
 		bRet = true;
 	}
 	else
 	{
-		energy -= __min(energy, iCostMoveFail);
+		energy -= MIN(energy, iCostMoveFail);
 		bRet = false;
 	}
 
@@ -109,17 +108,17 @@ bool Cell::Share(int xCur, int yCur)
 	if (tmpptr->energy)
 	{
 		tmpptr->bDead = true;
-		uintptr_t tmp = __min(tmpptr->energy, __max(0, giEatAmount - (int)(iExternalCycles / 10000)));
+		uintptr_t tmp = MIN(tmpptr->energy, MAX(0, giEatAmount - (int)(iExternalCycles / 10000)));
 		tmpptr->energy -= tmp;
 		energy += tmp;
 		steals += tmp;
 
-		energy -= __min(energy, giCostShareSucc);
+		energy -= MIN(energy, giCostShareSucc);
 		bRet = true;
 	}
 	else
 	{
-		energy -= __min(energy, giCostShareSucc);// iCostShareFail);
+		energy -= MIN(energy, giCostShareSucc);// iCostShareFail);
 		bRet = false;
 	}
 

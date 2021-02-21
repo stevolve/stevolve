@@ -1380,11 +1380,11 @@ function updateGlobalBufferAndViews(buf) {
 }
 
 var STATIC_BASE = 1024,
-    STACK_BASE = 5264656,
+    STACK_BASE = 5264576,
     STACKTOP = STACK_BASE,
-    STACK_MAX = 21776,
-    DYNAMIC_BASE = 5264656,
-    DYNAMICTOP_PTR = 21616;
+    STACK_MAX = 21696,
+    DYNAMIC_BASE = 5264576,
+    DYNAMICTOP_PTR = 21536;
 
 assert(STACK_BASE % 16 === 0, 'stack must start aligned');
 assert(DYNAMIC_BASE % 16 === 0, 'heap must start aligned');
@@ -1826,7 +1826,7 @@ function isFileURI(filename) {
 
 
 
-var wasmBinaryFile = 'STEvolve.wasm';
+var wasmBinaryFile = 'test.wasm';
 if (!isDataURI(wasmBinaryFile)) {
   wasmBinaryFile = locateFile(wasmBinaryFile);
 }
@@ -1976,7 +1976,7 @@ function _emscripten_asm_const_iii(code, sigPtr, argbuf) {
 
 
 
-// STATICTOP = STATIC_BASE + 20752;
+// STATICTOP = STATIC_BASE + 20672;
 /* global initializers */  __ATINIT__.push({ func: function() { ___wasm_call_ctors() } });
 
 
@@ -6737,7 +6737,7 @@ function _emscripten_asm_const_iii(code, sigPtr, argbuf) {
   var _abs=Math_abs;
 
   function _emscripten_get_sbrk_ptr() {
-      return 21616;
+      return 21536;
     }
 
   function _emscripten_memcpy_big(dest, src, num) {

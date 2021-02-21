@@ -1,5 +1,12 @@
 #pragma once
 
+#ifndef MAX
+#define MAX(a,b) (((a) > (b)) ? (a) : (b))
+#endif
+#ifndef MIN
+#define MIN(a,b) (((a) < (b)) ? (a) : (b))
+#endif
+
 // Constants representing neighbors in the 2D grid. 
 #define D_NORTH 0
 #define D_NE 1

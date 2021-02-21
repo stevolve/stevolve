@@ -1,0 +1,1 @@
+emcc portable/CellBase.cpp portable/CellNeural.cpp portable/CellProgram.cpp portable/WorldBase.cpp portable/WorldToroidal.cpp portable/Settings.cpp STEvolve.cpp --emrun -s WASM=1 -s ALLOW_MEMORY_GROWTH=1 -s LLD_REPORT_UNDEFINED -s ASYNCIFY -s ASYNCIFY_STACK_SIZE=1048576 -g -o STEvolve.html
